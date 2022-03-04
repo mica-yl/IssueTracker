@@ -5,14 +5,21 @@
 <head>
     <meta charset="utf8" />
     <title>Pro MERN hello example</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react-dom.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.13.0/polyfill.js"></script> 
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.13.0/polyfill.js"></script>
+    <style>
+        table.bordered-table th,
+        td {
+            border: 1px solid chocolate;
+            padding: 4px;
+        }
+    </style>
 </head>
 
 <body>
     <div id="root"></div> <!-- the app root -->
-    <script  src="App.js"></script>
+    <script src="App.js"></script>
 
 </body>
 
