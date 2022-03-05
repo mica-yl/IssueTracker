@@ -1,4 +1,4 @@
-const {useState,useEffect} =React;
+const { useState, useEffect } = React;
 
 const root = document.getElementById('root');
 
@@ -17,33 +17,41 @@ const issues_data = [
 
 ];
 
-const counter = (function createCounter(){
-    let count =0;
-    return function counter(){
-        return ++count;
-    }
-})();
+
 
 function IssueList(props) {
-    const [issues, setIssues] = useState(issues_data);
-    const count=counter();
-    function addTestIssue() {
-        setIssues(data => data.concat({
-            id:data.length + 1 ,
-            status: 'New', owner: 'Pieta', created: new Date(),
-            title: 'Completion date should be optional !',
-        }));
+    const [issues, setIssues] = useState([]);
+    useEffect(function fetchData() {
+        setTimeout(() => setIssues(data => data.concat(issues_data)), 3000)
     }
-   if (count===1) {setTimeout(addTestIssue, 2000);}
-   console.log(`[${count}] issueList is called .`)
-   return (
+        , []);// run once ! 
+    function addTestIssue() {
+        addIssue({
+            id:-666,status: 'New', Owner: 'Pieta', created: new Date(),
+            title: 'Completion date should be optional !',
+        });
+    }
+    function addIssue(issue) {
+        // id is ! isNaN ?
+        // issue shouldn't be null or undefined.
+        if (issue) {
+            setIssues(function addIssue_safely(data) {
+                return data.concat(
+                    isNaN(issue.id) ? Object.assign({ id: data.length + 1, }, issue) : issue
+                )
+            });
+        }
+    }
+
+    return (
         <div>
             <h1>Issue Tracker</h1>
             <IssueFilter />
             <hr />
+            <button onClick={addTestIssue}>Add !</button>
             <IssueTable issues={issues} />
             <hr />
-            <IssueAdd />
+            <IssueAdd onSubmit={addIssue} />
         </div>
     );
 }
@@ -116,10 +124,32 @@ function IssueRow(props) {
 }
 
 function IssueAdd(props) {
-
+    const [owner, setOwner] = useState('');
+    const [title, setTitle] = useState('');
+    /* TODO? : function need to be defined only once */
+    function handleSubmit(event) {
+        props.onSubmit({
+            title: title, Owner: owner,
+            status: 'New',
+            created: new Date(),
+        });
+        // clear state.
+        setOwner('');
+        setTitle('');
+        event.preventDefault();
+    }
+    function handleChange(setter) {
+        return (event) => setter(event.target.value);
+    }
 
     return (
-        <div>Place Holder for IssueAdd.</div>
+        <div>
+            <form name='issueAdd' onSubmit={handleSubmit}>
+                <input placeholder="Owner" value={owner} onChange={handleChange(setOwner)}></input>
+                <input placeholder="Title" value={title} onChange={handleChange(setTitle)}></input>
+                <button type="submit">Add</button>
+            </form>
+        </div>
     );
 }
 
