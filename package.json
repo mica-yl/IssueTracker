@@ -12,6 +12,7 @@
   "author": "Michael Samir",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "body-parser": "^1.19.2",
     "express": "^4.17.3",
     "mongodb": "^4.4.0"
   },

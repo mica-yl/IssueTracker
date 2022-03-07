@@ -4,13 +4,13 @@ const root = document.getElementById('root');
 
 const issues_data = [
     {
-        id: 1, status: 'Open', Owner: 'Ravan',
+        id: 1, status: 'Open', owner: 'Ravan',
         created: new Date('2016-08-15'), effort: 5
         , completionDate: undefined, title: 'Error in Console when clicking add.',
     },
 
     {
-        id: 2, status: 'Assigned', Owner: 'Eddie',
+        id: 2, status: 'Assigned', owner: 'Eddie',
         created: new Date('2016-08-16'), effort: 14,
         completionDate: new Date('2016-05-16'), title: 'Missing bottom border on panel',
     },
@@ -27,7 +27,7 @@ function IssueList(props) {
         , []);// run once ! 
     function addTestIssue() {
         addIssue({
-            id:-666,status: 'New', Owner: 'Pieta', created: new Date(),
+            id:-666,status: 'New', owner: 'Pieta', created: new Date(),
             title: 'Completion date should be optional !',
         });
     }
@@ -114,7 +114,7 @@ function IssueRow(props) {
         <tr>
             <td>{issue.id}</td>
             <td>{issue.status}</td>
-            <td>{issue.Owner}</td>
+            <td>{issue.owner}</td>
             <td>{issue.created.toDateString()}</td>
             <td>{issue.effort}</td>
             <td>{issue.completionDate ? issue.completionDate.toDateString() : ''}</td>
@@ -129,7 +129,7 @@ function IssueAdd(props) {
     /* TODO? : function need to be defined only once */
     function handleSubmit(event) {
         props.onSubmit({
-            title: title, Owner: owner,
+            title: title, owner: owner,
             status: 'New',
             created: new Date(),
         });
