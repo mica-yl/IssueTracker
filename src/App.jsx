@@ -2,32 +2,34 @@ const { useState, useEffect } = React;
 
 const root = document.getElementById('root');
 
-const issues_data = [
-    {
-        id: 1, status: 'Open', owner: 'Ravan',
-        created: new Date('2016-08-15'), effort: 5
-        , completionDate: undefined, title: 'Error in Console when clicking add.',
-    },
-
-    {
-        id: 2, status: 'Assigned', owner: 'Eddie',
-        created: new Date('2016-08-16'), effort: 14,
-        completionDate: new Date('2016-05-16'), title: 'Missing bottom border on panel',
-    },
-
-];
-
-
-
 function IssueList(props) {
     const [issues, setIssues] = useState([]);
-    useEffect(function fetchData() {
-        setTimeout(() => setIssues(data => data.concat(issues_data)), 3000)
+    useEffect(fetchData, []);// run once ! 
+
+    function fetchData() {
+        fetch('/api/v1/issues',
+            { method: 'GET' }).then(function (response) {
+                return response.json();
+            }).then(function (remote_data) {
+                const new_data = remote_data.records;
+                new_data.forEach(issue_jsonToJs);
+                //setIssues(data => data.concat(new_data));
+                setIssues(new_data);
+            })
+            .catch(err => console.error(err));
     }
-        , []);// run once ! 
+    function issue_jsonToJs(issue) {
+        // date returns as a string.
+        // rewrite with Obj.assign ???
+        if (issue.completionDate) {
+            issue.completionDate = new Date(issue.completionDate);
+        }
+        issue.created = new Date(issue.created);
+        return issue;
+    }
     function addTestIssue() {
         addIssue({
-            id:-666,status: 'New', owner: 'Pieta', created: new Date(),
+            id: -666, status: 'New', owner: 'Pieta', created: new Date(),
             title: 'Completion date should be optional !',
         });
     }
@@ -43,15 +45,30 @@ function IssueList(props) {
         }
     }
 
+    function createIssue(newIssue) {
+        fetch('/api/v1/issues',
+            {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newIssue, null, ' '),
+            })
+            .then(response => response.json())
+            .then(issue_jsonToJs)
+            .then(addIssue)
+            .catch(err => console.log(err));
+
+    }
+
     return (
         <div>
             <h1>Issue Tracker</h1>
             <IssueFilter />
             <hr />
+            <button onClick={fetchData}>Refresh !</button>
             <button onClick={addTestIssue}>Add !</button>
             <IssueTable issues={issues} />
             <hr />
-            <IssueAdd onSubmit={addIssue} />
+            <IssueAdd onSubmit={createIssue} />
         </div>
     );
 }
