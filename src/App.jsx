@@ -12,20 +12,23 @@ function IssueList(props) {
                 return response.json();
             }).then(function (remote_data) {
                 const new_data = remote_data.records;
-                new_data.forEach(issue_jsonToJs);
+                new_data.forEach((issue) => issue_jsonToJs(issue, { pure: false }));
                 //setIssues(data => data.concat(new_data));
                 setIssues(new_data);
             })
             .catch(err => console.error(err));
     }
-    function issue_jsonToJs(issue) {
+    function issue_jsonToJs(issue, options = { pure: true }) {
         // date returns as a string.
         // rewrite with Obj.assign ???
+        if (options.pure) {
+            issue = Object.assign({}, issue);//copy issue
+        }
         if (issue.completionDate) {
             issue.completionDate = new Date(issue.completionDate);
         }
         issue.created = new Date(issue.created);
-        return issue;
+        return issue;// for usage in `Promise`s or `map()`s
     }
     function addTestIssue() {
         addIssue({
@@ -52,10 +55,18 @@ function IssueList(props) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newIssue, null, ' '),
             })
-            .then(response => response.json())
-            .then(issue_jsonToJs)
-            .then(addIssue)
-            .catch(err => console.log(err));
+            .then(function (response) {
+                const res = response.json();
+                if (response.ok) {
+                    return res.then(issue_jsonToJs).then(addIssue);
+                }else if (response.status == 422){// forgot a field ?
+                    return res.then((err) =>
+                        setTimeout(() => alert(`Falied to add issue ${err.message}`), 0));
+                }else{
+                    throw response;
+                }
+            }).catch(err =>
+                 console.error(`Error in sending data to server: ${err.message}`));
 
     }
 
@@ -171,4 +182,4 @@ function IssueAdd(props) {
 }
 
 
-ReactDOM.render(<IssueList />, root);
+ReactDOM.render(<React.StrictMode><IssueList /></React.StrictMode>, root);

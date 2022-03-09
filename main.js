@@ -31,15 +31,64 @@ app.get('/api/v1/issues', function get_issues(req, res) {
     res.json({ _metadata: metadata, records: issues });
 });
 
-app.post('/api/v1/issues',function (req,res){
-    const newIssue=req.body;
-    newIssue.id=issues.length+1;
-    newIssue.created=new Date();
-    if (!newIssue.status){
-        newIssue.status='New';
+const validateIssue = (function validateIssueCreationScope() {
+    const validIssueStatus = {
+        New: true,
+        Open: true,
+        Assigned: true,
+        Fixed: true,
+        Verified: true,
+        Closed: true,
+    };
+
+    const issueFieldType = {
+        id: 'required',
+        status: 'required',
+        owner: 'required',
+        effort: 'optional',
+        created: 'required',
+        completionDate: 'optional',
+        title: 'required',
+    };
+
+    async function validateIssue(issue) {
+        const newIssue = {};
+        // copy scheme fields only and ignore other fields
+        for (const field in issueFieldType) {
+            const type = issueFieldType[field];
+            const value=issue[field];
+            if (value){
+                newIssue[field]=value;
+            }else if (type === 'required') {
+                throw `${field} is required.`;
+            }
+        }
+
+        if (!validIssueStatus[issue.status]) {
+            throw `${issue.status} isn't a valid status.`;
+        }
+        return newIssue;
     }
-    issues.push(newIssue);
-    res.json(newIssue);
+
+    return validateIssue;
+
+})()
+
+
+app.post('/api/v1/issues', function (req, res) {
+    const newIssue = req.body;
+    newIssue.id = issues.length + 1;
+    newIssue.created = new Date();
+    if (!newIssue.status) {
+        newIssue.status = 'New';
+    }
+    validateIssue(newIssue)
+        .then((newIssue) => {
+            issues.push(newIssue);
+            res.json(newIssue);
+        })
+        .catch((err) => res.status(422).json({ message: `Invalid request: ${err}` }));
+
 });
 
 
