@@ -75,8 +75,12 @@ function IssueList(props) {
                 }
             }).catch(err =>
                 console.error(`Error in sending data to server: ${err.message}`));
-
     }
+
+    function deleteIssue(issueId) {
+        setImmediate(()=> alert(`TODO : delete API ? \nit will delete ${issueId} `));
+     }
+
 
     return (
         <div>
@@ -85,7 +89,7 @@ function IssueList(props) {
             <hr />
             <button onClick={fetchData}>Refresh !</button>
             <button onClick={addTestIssue}>Add !</button>
-            <IssueTable issues={issues} />
+            <IssueTable issues={issues} onDelete={deleteIssue} />
             <hr />
             <IssueAdd onSubmit={createIssue} />
         </div>
@@ -104,7 +108,8 @@ function IssueFilter(props) {
 
 function IssueTable(props) {
     const borderedStyle = { border: '1px solid silver', padding: 6 };
-    const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue} />);
+    const issueRows = props.issues.map(issue =>
+        <IssueRow key={issue._id} issue={issue} onDelete={() => props.onDelete(issue._id)} />);
     /*
     // generation code
     (function(obj){
@@ -126,6 +131,7 @@ function IssueTable(props) {
                     <th>effort</th>
                     <th>completionDate</th>
                     <th>title</th>
+                    <th>delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -155,6 +161,7 @@ function IssueRow(props) {
             <td>{issue.effort}</td>
             <td>{issue.completionDate ? issue.completionDate.toDateString() : ''}</td>
             <td>{issue.title}</td>
+            <td><button onClick={props.onDelete}>X</button></td>
         </tr>
     );
 }
