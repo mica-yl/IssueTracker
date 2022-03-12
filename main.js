@@ -1,34 +1,38 @@
-const { json } = require('body-parser');
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
-let port = 8081;
+const port = 8081;
 
+// db
+const { MongoClient } = require('mongodb');
+const client = MongoClient.connect('mongodb://localhost:27017');
+const db = client.then(client => client.db('issuetracker'));
 
-const issues = [
-    {
-        id: 1, status: 'Open', owner: 'Ravan',
-        created: new Date('2016-08-15'), effort: 5
-        , completionDate: undefined, title: 'Error in Console when clicking add.',
-    },
+/// promise pipelines/middleware
+const error_log = err => console.error(err);
+function get_issuesPromise(db) {
+    return db.collection('issues').find().toArray();
+}
 
-    {
-        id: 2, status: 'Assigned', owner: 'Eddie',
-        created: new Date('2016-08-16'), effort: 14,
-        completionDate: new Date('2016-05-16'), title: 'Missing bottom border on panel',
-    },
+function db_addIssue(issue) {
+    return function db_addIssue_result(db) {
+        return db.collection('issues').insertOne(issue);
+    };
+}
 
-];
-
-
+// start
 app.use(express.static('static'));
 app.use(bodyParser.json());
 
 app.get('/api/v1/issues', function get_issues(req, res) {
-    const metadata = { total_count: issues.length };
-    // pretty version
-    // console.log(JSON.stringify({ _metadata: metadata, records: issues },null,' '))
-    res.json({ _metadata: metadata, records: issues });
+    db.then(get_issuesPromise).then(issues => {
+        const metadata = { total_count: issues.length };
+        res.json({ _metadata: metadata, records: issues });
+
+    }).catch(err => {
+        console.error(err);
+        res.status(500).json({ message: `Internal Server Error : ${err}` })
+    });
 });
 
 const validateIssue = (function validateIssueCreationScope() {
@@ -42,13 +46,13 @@ const validateIssue = (function validateIssueCreationScope() {
     };
 
     const issueFieldType = {
-        id: 'required',
-        status: 'required',
-        owner: 'required',
-        effort: 'optional',
-        created: 'required',
-        completionDate: 'optional',
-        title: 'required',
+        // _id: {required:true,},
+        status: { required: true, },
+        owner: { required: true, },
+        effort: { required: false, },
+        created: { required: true, },
+        completionDate: { required: false, },
+        title: { required: true, },
     };
 
     async function validateIssue(issue) {
@@ -56,10 +60,10 @@ const validateIssue = (function validateIssueCreationScope() {
         // copy scheme fields only and ignore other fields
         for (const field in issueFieldType) {
             const type = issueFieldType[field];
-            const value=issue[field];
-            if (value){
-                newIssue[field]=value;
-            }else if (type === 'required') {
+            const value = issue[field];
+            if (value) {
+                newIssue[field] = value;
+            } else if (type.required) {
                 throw `${field} is required.`;
             }
         }
@@ -76,25 +80,31 @@ const validateIssue = (function validateIssueCreationScope() {
 
 
 app.post('/api/v1/issues', function (req, res) {
-    const newIssue = req.body;
-    newIssue.id = issues.length + 1;
-    newIssue.created = new Date();
-    if (!newIssue.status) {
-        newIssue.status = 'New';
-    }
-    validateIssue(newIssue)
-        .then((newIssue) => {
-            issues.push(newIssue);
-            res.json(newIssue);
-        })
-        .catch((err) => res.status(422).json({ message: `Invalid request: ${err}` }));
-
+    //
+    db.then(get_issuesPromise).then(issues => { // do i need to get them each time?
+        const newIssue = req.body;
+        // newIssue.id = issues.length + 1;// is handled by mongodb
+        newIssue.created = new Date();
+        if (!newIssue.status) {
+            newIssue.status = 'New';
+        }
+        return validateIssue(newIssue);
+    }).then(newIssue => {
+        // issues.push(newIssue);
+        return db.then(db_addIssue(newIssue)).then(result =>
+            res.json(newIssue)// would it always have an _id ?;
+        );
+    }, err => {
+        console.error(`request error : ${err}`);
+        res.status(422).json({ message: `Invalid request: ${err}` })
+    }).catch(error_log);
 });
 
 
+db.then(db => {
+    app.listen(port, function startServer() {
+        console.log(`App started at ${port}`);
+    });
 
+}).catch(error_log);
 
-app.listen(port, function startServer() {
-    console.log(`App started at ${port}`);
-
-});

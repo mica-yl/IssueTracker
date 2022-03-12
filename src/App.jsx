@@ -9,11 +9,18 @@ function IssueList(props) {
     function fetchData() {
         fetch('/api/v1/issues',
             { method: 'GET' }).then(function (response) {
-                return response.json();
+                const json = response.json();
+                if (response.ok) {
+                    return json;
+                } else if (response.status == 500) {
+                    return json.then((err) =>
+                        setImmediate(() => alert(`Falied to fetch issues ${err.message}`)));
+                } else {
+                    throw response;
+                }
             }).then(function (remote_data) {
                 const new_data = remote_data.records;
                 new_data.forEach((issue) => issue_jsonToJs(issue, { pure: false }));
-                //setIssues(data => data.concat(new_data));
                 setIssues(new_data);
             })
             .catch(err => console.error(err));
@@ -32,18 +39,17 @@ function IssueList(props) {
     }
     function addTestIssue() {
         addIssue({
-            id: -666, status: 'New', owner: 'Pieta', created: new Date(),
+            status: 'New', owner: 'Pieta', created: new Date(),
             title: 'Completion date should be optional !',
         });
     }
     function addIssue(issue) {
-        // id is ! isNaN ?
-        // issue shouldn't be null or undefined.
-        if (issue) {
+        if (issue) {// issue shouldn't be null or undefined.
             setIssues(function addIssue_safely(data) {
                 return data.concat(
-                    isNaN(issue.id) ? Object.assign({ id: data.length + 1, }, issue) : issue
-                )
+                    //  isNaN(issue.id) ? Object.assign({ id: data.length + 1, }, issue) : issue
+                    issue
+                );
             });
         }
     }
@@ -55,18 +61,20 @@ function IssueList(props) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newIssue, null, ' '),
             })
-            .then(function (response) {
-                const res = response.json();
+            .then(function handlePostIssue(response) {
+                const json = response.json();
                 if (response.ok) {
-                    return res.then(issue_jsonToJs).then(addIssue);
-                }else if (response.status == 422){// forgot a field ?
-                    return res.then((err) =>
-                        setTimeout(() => alert(`Falied to add issue ${err.message}`), 0));
-                }else{
+                    // should i return response instead ?
+                    return json.then(issue_jsonToJs).then(addIssue);
+                } else if (response.status == 422) {// forgot a field ?
+                    json.then(err =>
+                        setImmediate(() => alert(`Falied to add issue ${err.message}`)));
+                    return response;
+                } else {
                     throw response;
                 }
             }).catch(err =>
-                 console.error(`Error in sending data to server: ${err.message}`));
+                console.error(`Error in sending data to server: ${err.message}`));
 
     }
 
@@ -96,7 +104,7 @@ function IssueFilter(props) {
 
 function IssueTable(props) {
     const borderedStyle = { border: '1px solid silver', padding: 6 };
-    const issueRows = props.issues.map(issue => <IssueRow key={issue.id} issue={issue} />);
+    const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue} />);
     /*
     // generation code
     (function(obj){
@@ -140,7 +148,7 @@ function IssueRow(props) {
     */
     return (
         <tr>
-            <td>{issue.id}</td>
+            <td>{issue._id}</td>
             <td>{issue.status}</td>
             <td>{issue.owner}</td>
             <td>{issue.created.toDateString()}</td>
