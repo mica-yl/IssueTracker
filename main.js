@@ -1,19 +1,37 @@
+// @ts-check
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 const port = 8081;
 
 // db
+/**
+ * @typedef {import('mongodb').Db} Db
+ */
 const { MongoClient, ObjectId } = require('mongodb');
 const client = MongoClient.connect('mongodb://localhost:27017');
 const db = client.then(client => client.db('issuetracker'));
 
+
 /// promise pipelines/middleware
 const error_log = err => console.error(err);
+/**
+ * 
+ * @param {Db} db 
+ * @returns issues
+ */
 function get_issuesPromise(db) {
     return db.collection('issues').find().toArray();
 }
+/**
+ * @typedef {*} Issue
+ */
 
+/**
+ * 
+ * @param {Issue} issue 
+ * @returns {(db:Db) => any} insertIssuePipeline
+ */
 function db_addIssue(issue) {
     return function db_addIssue_result(db) {
         return db.collection('issues').insertOne(issue);
@@ -54,7 +72,11 @@ const validateIssue = (function validateIssueCreationScope() {
         completionDate: { required: false, },
         title: { required: true, },
     };
-
+    /**
+     * 
+     * @param {Issue} issue 
+     * @returns {Promise<Issue>}
+     */
     async function validateIssue(issue) {
         const newIssue = {};
         // copy scheme fields only and ignore other fields
@@ -105,9 +127,10 @@ app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
     const _id = req.params._id;
     if (_id) {
         db.then(db =>
-            db.collection('issues').deleteOne({ _id: ObjectId(_id) })).then(result =>
-                res.json(result)
-            ).catch(error_log);
+            db.collection('issues').deleteOne({ _id: new ObjectId(_id) })
+        ).then(result =>
+            res.json(result)
+        ).catch(error_log);
     }
 });
 
