@@ -1,4 +1,5 @@
 node_modules/*
 static/*.js
 static/favicon.ico
+static/bundle
 package-lock.json
