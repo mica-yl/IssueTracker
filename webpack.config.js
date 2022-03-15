@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     entry: {
-        app: path.resolve(__dirname, './src/App.jsx'),
+        app: [path.resolve(__dirname, './src/App.jsx')],
     },
     output: {
         filename: '[name].bundle.js',
@@ -43,5 +43,6 @@ module.exports = {
         proxy: {
             '*': 'http://localhost:8081',
         },
-    }
+    },
+    plugins:[],
 }

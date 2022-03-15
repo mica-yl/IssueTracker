@@ -1,7 +1,7 @@
 // @ts-check
 const bodyParser = require('body-parser');
 const express = require('express');
-const {validateIssue}=require('./issue');
+const { validateIssue } = require('./issue');
 
 const app = express();
 const port = 8081;
@@ -43,6 +43,24 @@ function db_addIssue(issue) {
 // start
 app.use(express.static('static'));
 app.use(bodyParser.json());
+
+// webpack
+if (process.env.NODE_ENV !== 'production') {
+    const webpack = require('webpack');
+    const webpackDevMiddleware = require('webpack-dev-middleware');
+    const webpackHotMiddleware = require('webpack-hot-middleware');
+    const config = require('../webpack.config');
+
+    config.entry.app.push('webpack-hot-middleware/client',
+        'webpack/hot/only-dev-server');
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    // @ts-ignore
+    const bundler = webpack(config);
+    app.use(webpackDevMiddleware(bundler, {}));
+    app.use(webpackHotMiddleware(bundler, { log: console.log }));
+}
+
+
 
 app.get('/api/v1/issues', function listAPI(req, res) {
     db.then(get_issuesPromise).then(issues => {
