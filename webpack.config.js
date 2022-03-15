@@ -3,10 +3,24 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: path.resolve(__dirname, './src/App.jsx'),
+    entry: {
+        app: path.resolve(__dirname, './src/App.jsx'),
+    },
     output: {
-        filename: 'app.bundle.js',
-        path: path.resolve(__dirname, 'static/bundle'),
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'static/bundle/'),
+        publicPath:'/bundle/',
+    },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
     },
     module: {
         rules: [
@@ -21,4 +35,13 @@ module.exports = {
             },
         ],
     },
+    devServer: {
+        port: 8082,
+        static: false,
+        compress: true,
+        hot: true,
+        proxy: {
+            '*': 'http://localhost:8081',
+        },
+    }
 }
