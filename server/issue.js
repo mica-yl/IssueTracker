@@ -45,6 +45,6 @@ async function validateIssue(issue) {
     return newIssue;
 }
 
-module.exports = {
-    validateIssue: validateIssue,
+export  {
+    validateIssue,
 };

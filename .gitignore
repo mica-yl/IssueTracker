@@ -1,5 +1,8 @@
 node_modules/*
+# static
 static/*.js
 static/favicon.ico
 static/bundle
-package-lock.json
+
+# generated code
+dist

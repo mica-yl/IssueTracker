@@ -1,0 +1,14 @@
+{
+  "ignore": ["start_hook.js"],
+  "sourceMaps": "inline",
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ]
+}

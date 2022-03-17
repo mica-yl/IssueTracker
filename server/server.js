@@ -1,10 +1,11 @@
 // @ts-check
-const bodyParser = require('body-parser');
-const express = require('express');
-const { validateIssue } = require('./issue');
+require('source-map-support').install();
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-const app = express();
-const port = 8081;
+import bodyParser from 'body-parser';
+import express from 'express';
+import { validateIssue } from './issue.js';
 
 // db
 /**
@@ -40,27 +41,13 @@ function db_addIssue(issue) {
     };
 }
 
+// app
+const app = express();
+const port = 8081;
+
 // start
 app.use(express.static('static'));
 app.use(bodyParser.json());
-
-// webpack
-if (process.env.NODE_ENV !== 'production') {
-    const webpack = require('webpack');
-    const webpackDevMiddleware = require('webpack-dev-middleware');
-    const webpackHotMiddleware = require('webpack-hot-middleware');
-    const config = require('../webpack.config');
-
-    config.entry.app.push('webpack-hot-middleware/client',
-        'webpack/hot/only-dev-server');
-    config.plugins.push(new webpack.HotModuleReplacementPlugin());
-    // @ts-ignore
-    const bundler = webpack(config);
-    app.use(webpackDevMiddleware(bundler, {}));
-    app.use(webpackHotMiddleware(bundler, { log: console.log }));
-}
-
-
 
 app.get('/api/v1/issues', function listAPI(req, res) {
     db.then(get_issuesPromise).then(issues => {
@@ -105,7 +92,7 @@ app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
         ).catch(error_log);
     }
 });
-
+//  throw new Error('test source mapping');// thrown 1;//doesn't work
 // run
 db.then(db => {
     app.listen(port, function startServer() {
