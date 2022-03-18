@@ -1,0 +1,6 @@
+rules:
+  no-alert: off
+env:
+  browser: true
+globals:
+  react: true
