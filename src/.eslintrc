@@ -1,6 +1,10 @@
 rules:
   no-alert: off
+  react-hooks/rules-of-hooks: error
+  react-hooks/exhaustive-deps: warn
 env:
   browser: true
 globals:
   react: true
+plugins:
+  - react-hooks
