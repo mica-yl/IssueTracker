@@ -1,4 +1,5 @@
 import React from 'react';
+import propTypes from 'prop-types';
 
 const { useState } = React;
 
@@ -35,3 +36,7 @@ export default function IssueAdd(props) {
     </div>
   );
 }
+
+IssueAdd.propTypes = {
+  onSubmit: propTypes.func.isRequired,
+};
