@@ -13,16 +13,18 @@ export default function IssueAdd(props) {
       owner,
       status: 'New',
       created: new Date(),
-    });
+    }).then((isDone) => {
     // clear state.
-    setOwner('');
-    setTitle('');
+      if (isDone === true) {
+        setOwner('');
+        setTitle('');
+      }
+    });
     event.preventDefault();
   }
   function handleChange(setter) {
     return (event) => setter(event.target.value);
   }
-
   return (
     <div>
       <form name="issueAdd" onSubmit={handleSubmit}>

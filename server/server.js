@@ -87,7 +87,19 @@ app.post('/api/v1/issues', function createAPI(req, res) {
 app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
   const { _id } = req.params;
   if (_id) {
-    dbConnection.then((db) => db.collection('issues').deleteOne({ _id: new ObjectId(_id) })).then((result) => res.json(result)).catch(error_log);
+    dbConnection
+      .then((db) => db.collection('issues')
+        .deleteOne({ _id: new ObjectId(_id) }))
+      // .then((response) => response.json())
+      .then((result) => {
+        const { acknowledged: ack, deletedCount: done } = result;
+        if (ack && (done === 1)) {
+          res.status(200).send();
+        } else {
+          // send error
+        }
+      })
+      .catch(error_log);
   }
 });
 //  throw new Error('test source mapping');// thrown 1;//doesn't work

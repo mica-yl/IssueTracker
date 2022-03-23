@@ -51,16 +51,22 @@ function IssueTable({ issues, onDelete }) {
     </table>
   );
 }
+function useSearchParamsUpdate(params) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  return {
+    update(event) {
+      event.preventDefault();
+      setSearchParams({ ...searchParams, ...params });
+    },
+    setSearchParams,
+    searchParams,
+  };
+}
 
 function IssueRow(props) {
   const { issue, onDelete } = props;
-  const [searchParams, setSearchParams] = useSearchParams();
-  function filter(status) {
-    return (event) => {
-      event.preventDefault();
-      setSearchParams({ status });
-    };
-  }
+
   return (
     <tr>
       <td><Link to={issue._id}>{issue._id.substr(-6)}</Link></td>
@@ -91,7 +97,7 @@ function issue_jsonToJs(issue) {
 export default function IssueList(props) {
   const [issues, setIssues] = useState([]);
   const [searchParams] = useSearchParams();
-  const filters= { status: [...new Set(issues.map((issue) => issue.status))] };
+  const filters = { status: [...new Set(issues.map((issue) => issue.status))] };
   function fetchData() {
     fetch(
       `/api/v1/issues?${searchParams}`,
@@ -126,7 +132,7 @@ export default function IssueList(props) {
   }
 
   function createIssue(newIssue) {
-    fetch(
+    return fetch(
       '/api/v1/issues',
       {
         method: 'POST',
@@ -134,28 +140,44 @@ export default function IssueList(props) {
         body: JSON.stringify(newIssue, null, ' '),
       },
     )
-      .then((response) => {
-        const json = response.json();
-        if (response.ok) {
-          // should i return response instead ?
-          return json.then(issue_jsonToJs).then(addIssue);
-        } if (response.status === 422) { // forgot a field ?
+      .then((response) => [response.status, response.json()])
+      .then(([status, json]) => {
+        // const json = response.json();
+        if (status === 200) { // ok
+          Promise.resolve(json).then(issue_jsonToJs).then(addIssue);
+          return true;// all done
+        } if (status === 422) { // forgot a field ?
           json.then((err) => setImmediate(() => alert(`Falied to add issue ${err.message}`)));
-          return response;
+          return false;
         }
-        throw response;
-      }).catch((err) => console.error(`Error in sending data to server: ${err.message}`));
+        return false;// defualt failed
+        // throw response;
+      })
+      .catch((err) => console.error(`Error in sending data to server: ${err.message}`));
   }
 
   function deleteIssue(issueId) {
-    setImmediate(() => alert(`TODO : delete API ? \nit will delete ${issueId} `));
+    if (confirm(`Are you sure to delete issue : ${issueId}`)) {
+      return fetch(
+        `/api/v1/issue/_id/${issueId}`,
+        {
+          method: 'DELETE',
+        },
+      ).then((response) => {
+        if (response.status === 200) { // ok
+          fetchData();// update
+          setTimeout(() => alert(`delete API: \nissue ${issueId} is deleted!`));
+        }
+      });
+    }
+    return Promise.resolve(false);// failed
   }
 
-  useEffect(fetchData, []);// run once !
+  useEffect(fetchData, [searchParams]);// run when search changes
   return (
     <div>
       <h1>Issue Tracker</h1>
-      <IssueFilter filters={filters} onRefresh={fetchData} />
+      <IssueFilter filters={filters} />
       <hr />
       <button type="button" onClick={fetchData}>Refresh !</button>
       <button type="button" onClick={addTestIssue}>Add !</button>
