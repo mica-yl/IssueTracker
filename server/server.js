@@ -21,11 +21,12 @@ const dbConnection = client.then((aClient) => aClient.db('issuetracker'));
 /// promise pipelines/middleware
 const error_log = (err) => console.error(err);
 /**
- * @param {Db} db
  * @returns issues
  */
-function get_issuesPromise(db) {
-  return db.collection('issues').find().toArray();
+function get_issuesPromise(filter) {
+  // {Db} db
+  // @type {{ collection: (arg0: string) => any[]; }} db
+  return (db) => db.collection('issues').find(filter).toArray();
 }
 /**
  * @typedef {*} Issue
@@ -51,7 +52,9 @@ app.use(express.static('static'));
 app.use(bodyParser.json());
 
 app.get('/api/v1/issues', function listAPI(req, res) {
-  dbConnection.then(get_issuesPromise).then((issues) => {
+  const filter = {};
+  if (req.query.status) filter.status = req.query.status;
+  dbConnection.then(get_issuesPromise(filter)).then((issues) => {
     const metadata = { total_count: issues.length };
     res.json({ _metadata: metadata, records: issues });
   }).catch((err) => {
@@ -62,7 +65,7 @@ app.get('/api/v1/issues', function listAPI(req, res) {
 
 app.post('/api/v1/issues', function createAPI(req, res) {
   //
-  dbConnection.then(get_issuesPromise).then((_issues) => { // do i need to get them each time?
+  dbConnection.then(get_issuesPromise()).then((_issues) => { // do i need to get them each time?
     const newIssue = req.body;
     // newIssue.id = issues.length + 1;// is handled by mongodb
     newIssue.created = new Date();

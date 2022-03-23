@@ -1,8 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-// eslint-disable-next-line no-unused-vars
 export default function IssueFilter(props) {
+  const { filters: { status }, onRefresh } = props;
   return (
-    <div>Place Holder for IssueFilter.</div>
+    <div>
+      <h2>filters:</h2>
+      <p>status :</p>
+      {status.map((aStatus) => (
+        <div>
+          <Link to={`?status=${aStatus}`} onClick={onRefresh}>{aStatus}</Link>
+          {' '}
+        </div>
+      ))}
+    </div>
   );
 }

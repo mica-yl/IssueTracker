@@ -2,9 +2,12 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 import React from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+
+import 'whatwg-fetch';
+
 import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
-import 'whatwg-fetch';
 
 const { useState, useEffect } = React;
 
@@ -49,20 +52,19 @@ function IssueTable({ issues, onDelete }) {
   );
 }
 
-function IssueRow({ issue, onDelete }) {
-  /*
-// generation code
-(function(obj){
-    let out='';
-    for (let p in obj){
-        out+=`<td>{issue.${p}}</td>\n`;}
-    console.log( out);
-})(obj)
-    */
+function IssueRow(props) {
+  const { issue, onDelete } = props;
+  const [searchParams, setSearchParams] = useSearchParams();
+  function filter(status) {
+    return (event) => {
+      event.preventDefault();
+      setSearchParams({ status });
+    };
+  }
   return (
     <tr>
-      <td>{issue._id}</td>
-      <td>{issue.status}</td>
+      <td><Link to={issue._id}>{issue._id.substr(-6)}</Link></td>
+      <td><Link to={`?status=${issue.status}`}>{issue.status}</Link></td>
       <td>{issue.owner}</td>
       <td>{issue.created.toDateString()}</td>
       <td>{issue.effort}</td>
@@ -88,10 +90,11 @@ function issue_jsonToJs(issue) {
 // eslint-disable-next-line no-unused-vars
 export default function IssueList(props) {
   const [issues, setIssues] = useState([]);
-
+  const [searchParams] = useSearchParams();
+  const filters= { status: [...new Set(issues.map((issue) => issue.status))] };
   function fetchData() {
     fetch(
-      '/api/v1/issues',
+      `/api/v1/issues?${searchParams}`,
       { method: 'GET' },
     ).then((response) => {
       const json = response.json();
@@ -114,6 +117,7 @@ export default function IssueList(props) {
   }
   function addTestIssue() {
     addIssue({
+      _id: '05896dgfhls56s5',
       status: 'New',
       owner: 'Pieta',
       created: new Date(),
@@ -151,7 +155,7 @@ export default function IssueList(props) {
   return (
     <div>
       <h1>Issue Tracker</h1>
-      <IssueFilter />
+      <IssueFilter filters={filters} onRefresh={fetchData} />
       <hr />
       <button type="button" onClick={fetchData}>Refresh !</button>
       <button type="button" onClick={addTestIssue}>Add !</button>
