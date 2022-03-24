@@ -2,84 +2,15 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import 'whatwg-fetch';
 
 import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
+import IssueTable from './IssueTable.jsx';
 
 const { useState, useEffect } = React;
-
-function IssueTable({ issues, onDelete }) {
-  const issueRows = issues.map(
-    (issue) => (
-      <IssueRow
-        key={issue._id}
-        issue={issue}
-        onDelete={() => onDelete(issue._id)}
-      />
-    ),
-  );
-  /*
-    // generation code
-    (function(obj){
-        let out='';
-        for (let p in obj){
-            out+=`<th>${p}</th>\n`;}
-        console.log( out);
-    })(obj)
-
-    */
-  return (
-    <table className="bordered-table">
-      <thead>
-        <tr>
-          <th>id</th>
-          <th>status</th>
-          <th>Owner</th>
-          <th>created</th>
-          <th>effort</th>
-          <th>completionDate</th>
-          <th>title</th>
-          <th>delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        {issueRows}
-      </tbody>
-    </table>
-  );
-}
-function useSearchParamsUpdate(params) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  return {
-    update(event) {
-      event.preventDefault();
-      setSearchParams({ ...searchParams, ...params });
-    },
-    setSearchParams,
-    searchParams,
-  };
-}
-
-function IssueRow(props) {
-  const { issue, onDelete } = props;
-
-  return (
-    <tr>
-      <td><Link to={issue._id}>{issue._id.substr(-6)}</Link></td>
-      <td><Link to={`?status=${issue.status}`}>{issue.status}</Link></td>
-      <td>{issue.owner}</td>
-      <td>{issue.created.toDateString()}</td>
-      <td>{issue.effort}</td>
-      <td>{issue.completionDate ? issue.completionDate.toDateString() : ''}</td>
-      <td>{issue.title}</td>
-      <td><button type="button" onClick={onDelete}>X</button></td>
-    </tr>
-  );
-}
 
 function issue_jsonToJs(issue) {
   // date returns as a string.
