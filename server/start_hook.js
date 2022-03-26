@@ -1,4 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
+const register = require('@babel/register');
 const config = require('./.babelrc.json');
-require('@babel/register')(config);
-require('./server.js');
+
+const custom = {
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
+};
+register({ ...config, ...custom });
+require('./server.ts');

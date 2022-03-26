@@ -1,15 +1,14 @@
 /* eslint-disable camelcase */
-// @ts-check
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-
+import { install as installMapSupport } from 'source-map-support';
 import bodyParser from 'body-parser';
 import express from 'express';
-import { MongoClient, ObjectId } from 'mongodb';
+import { Db, MongoClient, ObjectId } from 'mongodb';
 
-import validateIssue from './issue.js';
+import validateIssue from './issue';
 
-require('source-map-support').install();
+installMapSupport();
 
 // db
 /**
@@ -23,10 +22,10 @@ const error_log = (err) => console.error(err);
 /**
  * @returns issues
  */
-function get_issuesPromise(filter) {
+function get_issuesPromise(filter?:Record<string, unknown>) {
   // {Db} db
   // @type {{ collection: (arg0: string) => any[]; }} db
-  return (db) => db.collection('issues').find(filter).toArray();
+  return (db:Db) => db.collection('issues').find(filter).toArray();
 }
 /**
  * @typedef {*} Issue
@@ -38,7 +37,7 @@ function get_issuesPromise(filter) {
  * @returns {(db:Db) => any} insertIssuePipeline
  */
 function db_addIssue(issue) {
-  return function db_addIssue_result(db) {
+  return function db_addIssue_result(db:Db) {
     return db.collection('issues').insertOne(issue);
   };
 }

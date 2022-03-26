@@ -1,20 +1,35 @@
 extends:
-  - 'airbnb' 
+  - airbnb
+  - plugin:@typescript-eslint/recommended
+  # - plugin:@typescript-eslint/recommended-requiring-type-checking
 rules:
   import/extensions:
     - error
-    - always # default
+    - never # default
     - jsx: always
       js: ignore
       json: always
       ts: always
-  prefer-arrow-callback: off  # i prefer named functions — how to inforce that ?
+      .tsx: ignore
+  prefer-arrow-callback: off # i prefer named functions — how to inforce that ?
   no-underscore-dangle:
     - error
-    - allow: 
-      - _id
+    - allow:
+        - _id
   no-unused-vars:
     - error
     - argsIgnorePattern: ^_
       varsIgnorePattern: ^_
       destructuredArrayIgnorePattern: ^_
+parser: "@typescript-eslint/parser"
+plugins:
+  - "@typescript-eslint"
+settings:
+  import/parsers:
+    "@typescript-eslint/parser": [.ts, .tsx]
+  import/reslover:
+    typescript:
+      alwaysTryTypes: true
+    node:
+      paths: [./src]
+      extensions: [.ts, .tsx, .js, .json, .jsx]

@@ -1,3 +1,13 @@
+type Issue<X> = {
+  _id: string,
+  status: string,
+  owner: string,
+  effort: number,
+  created: X,
+  completionDate: X,
+  title: string,
+};
+
 const validIssueStatus = {
   New: true,
   Open: true,

@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSearchParamsUpdate } from './react-router-hooks.js';
+import { useSearchParamsUpdate } from './react-router-hooks';
 
-export default function IssueRow(props) {
+export default function IssueRow(props:{issue:Issue}) {
   const {
     issue: {
       _id,

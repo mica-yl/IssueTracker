@@ -1,0 +1,4 @@
+node_modules
+dist
+static/bundle
+server/start_hook.js

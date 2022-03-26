@@ -11,7 +11,7 @@ export default function IssueFilter(props) {
   return (
     <div>
       <p>
-        filters:
+        filters :
         {' '}
         <Link to={{ pathname: '.', search: '' }}>
           clear

@@ -1,5 +1,7 @@
 {
-  "ignore": ["start_hook.js"],
+  "ignore": [
+    "start_hook.js"
+  ],
   "sourceMaps": "inline",
   "presets": [
     [
@@ -9,6 +11,9 @@
           "node": "current"
         }
       }
+    ],
+    [
+      "@babel/preset-typescript"
     ]
   ]
 }

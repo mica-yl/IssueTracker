@@ -6,13 +6,15 @@ import { useSearchParams } from 'react-router-dom';
 
 import 'whatwg-fetch';
 
-import IssueAdd from './IssueAdd.jsx';
-import IssueFilter from './IssueFilter.jsx';
-import IssueTable from './IssueTable.jsx';
+import IssueAdd from './IssueAdd';
+import IssueFilter from './IssueFilter';
+import IssueTable from './IssueTable';
 
 const { useState, useEffect } = React;
 
-function issue_jsonToJs(issue) {
+type Issue = Record<string, unknown>;
+
+function issue_jsonToJs(issue:Issue) {
   // date returns as a string.
   // rewrite with Obj.assign ???
   const newIssue = { ...issue };
@@ -22,6 +24,29 @@ function issue_jsonToJs(issue) {
   }
   newIssue.created = new Date(newIssue.created);
   return newIssue;// for usage in `Promise`s or `map()`s
+}
+
+function useIssues(i : Issue[] = []) {
+  const [issues, setIssues] = useState(i);
+  return {
+    set: setIssues,
+    get get() { return issues; },
+    add(issue) {
+      if (issue) { // issue shouldn't be null or undefined.
+        setIssues((old) => old.concat(issue));
+      }
+    },
+    addTestIssue() {
+      this.add({
+        _id: '05896dgfhls56s5',
+        status: 'New',
+        owner: 'Pieta',
+        created: new Date(),
+        title: 'Completion date should be optional !',
+      });
+    },
+
+  };
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -62,7 +87,7 @@ export default function IssueList(props) {
     });
   }
 
-  function createIssue(newIssue) {
+  function createIssue(newIssue:Issue) {
     return fetch(
       '/api/v1/issues',
       {
@@ -72,16 +97,17 @@ export default function IssueList(props) {
       },
     )
       .then((response) => [response.status, response.json()])
-      .then(([status, json]) => {
+      .then(function checkStatus([status, json]) {
         // const json = response.json();
         if (status === 200) { // ok
           Promise.resolve(json).then(issue_jsonToJs).then(addIssue);
-          return true;// all done
+          return true; // all done
         } if (status === 422) { // forgot a field ?
           json.then((err) => setImmediate(() => alert(`Falied to add issue ${err.message}`)));
           return false;
         }
-        return false;// defualt failed
+        return false; // default failed
+
         // throw response;
       })
       .catch((err) => console.error(`Error in sending data to server: ${err.message}`));

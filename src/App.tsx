@@ -10,8 +10,8 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import IssueList from './IssueList.jsx';
-import IssueEdit from './IssueEdit.jsx';
+import IssueList from './IssueList';
+import IssueEdit from './IssueEdit';
 
 const root = document.getElementById('root');
 

@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   entry: {
-    app: [path.resolve(__dirname, './src/App.jsx')],
+    app: [path.resolve(__dirname, './src/App')],
   },
   output: {
     filename: '[name].bundle.js',
@@ -24,11 +24,11 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx$/,
+        test: /\.tsx$/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/env', '@babel/react'],
+            presets: ['@babel/env', '@babel/react', '@babel/typescript'],
           },
         },
       },
@@ -45,4 +45,7 @@ module.exports = {
   },
   plugins: [],
   devtool: 'source-map',
+  resolve: {
+    extensions: ['.js', '.ts', '.tsx', '.json'],
+  },
 };
