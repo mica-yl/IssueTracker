@@ -5,7 +5,7 @@ import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-  HashRouter, BrowserRouter,
+  BrowserRouter,
   Route, Routes,
   Navigate,
 } from 'react-router-dom';

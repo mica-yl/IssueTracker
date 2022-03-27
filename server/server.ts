@@ -105,7 +105,7 @@ app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
 // browser routing
 app.get('*', (req, res) => {
   res.sendFile(path.resolve('static/index.html'));
-  console.log(`${req.url} -> /index.html`)
+  console.log(`${req.url} -> /index.html`);
 });
 
 
