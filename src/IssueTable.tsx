@@ -1,8 +1,11 @@
 import React from 'react';
 import IssueRow from './IssueRow';
+import { Issue } from './IssueList';
 
-export default function IssueTable({ issues, onDelete }:
-  {issues: string, onDelete:(id:string)=>void}) {
+export default function IssueTable(
+  { issues, onDelete }:{issues : Issue[],
+    onDelete:(id:string)=>void},
+) {
   const issueRows = issues.map(
     (issue:{_id:string}) => (
       <IssueRow

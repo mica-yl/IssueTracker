@@ -10,7 +10,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import IssueList from './IssueList';
+import IssueList, { App } from './IssueList';
 import IssueEdit from './IssueEdit';
 
 const root = document.getElementById('root');
@@ -19,22 +19,24 @@ function NotFound() {
   return (<p>Page Not found</p>);
 }
 
-function App() {
+function RoutedApp() {
   return (
     <React.StrictMode>
       <HashRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="issues" />} />
-          <Route path="issues" element={<IssueList />} />
-          <Route path="issues/:id" element={<IssueEdit />} />
-          <Route path="*" element={<NotFound />} />
+          <Route index element={<Navigate to="issues" />} />
+          <Route element={<App />}>
+            <Route path="issues" element={<IssueList />} />
+            <Route path="issues/:id" element={<IssueEdit />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
       </HashRouter>
     </React.StrictMode>
   );
 }
 
-ReactDOM.render(<App />, root);
+ReactDOM.render(<RoutedApp />, root);
 
 if (module.hot) {
   module.hot.accept();

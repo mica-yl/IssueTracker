@@ -20,6 +20,9 @@ export function useSearchParamsUpdate() {
   return {
     searchParams,
     setSearchParams,
+    // reduceSearchParams(f: (i:Record<string, string>)=>Record<string, string>) {
+    //   setSearchParams({ ...f({ ...searchParams.entries() }) });
+    // },
     newSearchParams(obj) {
       return new URLSearchParams(
         {

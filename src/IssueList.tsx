@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Outlet } from 'react-router-dom';
 
 import 'whatwg-fetch';
 
@@ -12,11 +12,10 @@ import IssueTable from './IssueTable';
 
 const { useState, useEffect } = React;
 
-type Issue = Record<string, unknown>;
+export type Issue = Record<string, unknown>;
 
 function issue_jsonToJs(issue:Issue) {
   // date returns as a string.
-  // rewrite with Obj.assign ???
   const newIssue = { ...issue };
 
   if (newIssue.completionDate) {
@@ -133,7 +132,6 @@ export default function IssueList(props) {
   useEffect(fetchData, [searchParams]);// run when search changes
   return (
     <div>
-      <h1>Issue Tracker</h1>
       <IssueFilter filters={filters} />
       <hr />
       <button type="button" onClick={fetchData}>Refresh !</button>
@@ -141,6 +139,20 @@ export default function IssueList(props) {
       <IssueTable issues={issues} onDelete={deleteIssue} />
       <hr />
       <IssueAdd onSubmit={createIssue} />
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <div>
+      <div className="header">
+        <h1>Issue Tracker</h1>
+      </div>
+      <Outlet />
+      <div className="footer">
+        <h1>A Footer</h1>
+      </div>
     </div>
   );
 }
