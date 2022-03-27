@@ -5,7 +5,7 @@ import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-  HashRouter,
+  HashRouter, BrowserRouter,
   Route, Routes,
   Navigate,
 } from 'react-router-dom';
@@ -22,7 +22,7 @@ function NotFound() {
 function RoutedApp() {
   return (
     <React.StrictMode>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route index element={<Navigate to="issues" />} />
           <Route element={<App />}>
@@ -31,7 +31,7 @@ function RoutedApp() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </React.StrictMode>
   );
 }

@@ -4,6 +4,7 @@ import 'regenerator-runtime/runtime';
 import { install as installMapSupport } from 'source-map-support';
 import bodyParser from 'body-parser';
 import express from 'express';
+import path from 'path';
 import { Db, MongoClient, ObjectId } from 'mongodb';
 
 import validateIssue from './issue';
@@ -101,6 +102,13 @@ app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
       .catch(error_log);
   }
 });
+// browser routing
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve('static/index.html'));
+  console.log(`${req.url} -> /index.html`)
+});
+
+
 //  throw new Error('test source mapping');// thrown 1;//doesn't work
 // run
 dbConnection.then((_db) => {
