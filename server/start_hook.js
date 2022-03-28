@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 const register = require('@babel/register');
 const config = require('./.babelrc.json');
 

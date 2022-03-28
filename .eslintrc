@@ -5,12 +5,12 @@ extends:
 rules:
   import/extensions:
     - error
-    - never # default
-    - jsx: always
+    - always # default
+    - jsx: ignore
       js: ignore
       json: always
-      ts: always
-      .tsx: ignore
+      ts: ignore
+      tsx: ignore
   prefer-arrow-callback: off # i prefer named functions — how to inforce that ?
   no-underscore-dangle:
     - error
@@ -27,9 +27,6 @@ plugins:
 settings:
   import/parsers:
     "@typescript-eslint/parser": [.ts, .tsx]
-  import/reslover:
+  import/resolver:
     typescript:
       alwaysTryTypes: true
-    node:
-      paths: [./src]
-      extensions: [.ts, .tsx, .js, .json, .jsx]
