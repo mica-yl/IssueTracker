@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { StatusFilter } from './StatusFilter';
 
-function Separator() {
-  return <span> | </span>;
+function EffortFilter() {
+
+  return (
+    <>
+      effort :
+      {' from'}
+      <input />
+      {' to '}
+      <input />
+      <button>Apply</button>
+      <button>Reset</button>
+    </>
+  );
 }
 
 export default function IssueFilter(props) {
-  const { filters: { status } } = props;
+  const { filters: { status: $status } } : {filters: {status : string[]}} = props;
   return (
     <div>
       <p>
@@ -17,26 +28,10 @@ export default function IssueFilter(props) {
           clear
         </Link>
         <br />
-        status :
-        {' '}
-        {status.map((aStatus, i, arr) => (
-          <span key={aStatus}>
-            <Link to={`?status=${aStatus}`}>
-              {aStatus}
-            </Link>
-            {i < arr.length - 1 ? <Separator /> : ''}
-          </span>
-        ))}
+        <StatusFilter statusArr={$status} />
+        <br />
+        <EffortFilter />
       </p>
     </div>
   );
 }
-IssueFilter.defaultProps = {
-  filters: [],
-};
-IssueFilter.propTypes = {
-  filters: PropTypes.shape({
-    status: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-
-  }),
-};

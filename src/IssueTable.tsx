@@ -1,6 +1,6 @@
 import React from 'react';
 import IssueRow from './IssueRow';
-import { Issue } from './IssueList';
+import { Issue } from './Issue';
 
 export default function IssueTable(
   { issues, onDelete }:{issues : Issue[],

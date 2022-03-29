@@ -50,10 +50,26 @@ const port = 8081;
 // start
 app.use(express.static('static'));
 app.use(bodyParser.json());
+type Status = 'Open'|'New'|'Assigned'|'Closed';
+
+type Query = {
+  status?:Status,
+  effort?:{$lte?:number, $gte?:number},
+};
 
 app.get('/api/v1/issues', function listAPI(req, res) {
-  const filter = {};
+  const filter : Query = {};
   if (req.query.status) filter.status = req.query.status;
+  if (req.query.effort_lte || req.query.effort_gte) {
+    filter.effort = {};
+    if (req.query.effort_lte) {
+      filter.effort.$lte = parseInt(req.query.effort_lte, 10);
+    }
+    if (req.query.effort_gte) {
+      filter.effort.$gte = parseInt(req.query.effort_gte, 10);
+    }
+  }
+
   dbConnection.then(get_issuesPromise(filter)).then((issues) => {
     const metadata = { total_count: issues.length };
     res.json({ _metadata: metadata, records: issues });
@@ -103,11 +119,10 @@ app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
   }
 });
 // browser routing
-app.get('*', (req, res) => {
+app.get('*', function indexFallback(req, res) {
   res.sendFile(path.resolve('static/index.html'));
   console.log(`${req.url} -> /index.html`);
 });
-
 
 //  throw new Error('test source mapping');// thrown 1;//doesn't work
 // run

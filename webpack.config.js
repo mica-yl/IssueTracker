@@ -24,7 +24,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx$/,
+        test: /\.tsx?$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -42,6 +42,7 @@ module.exports = {
     proxy: {
       '*': 'http://localhost:8081',
     },
+    historyApiFallback: true,
   },
   plugins: [],
   devtool: 'source-map',

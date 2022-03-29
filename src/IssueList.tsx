@@ -5,14 +5,13 @@ import React from 'react';
 import { useSearchParams, Outlet } from 'react-router-dom';
 
 import 'whatwg-fetch';
+import { Issue } from './Issue';
 
 import IssueAdd from './IssueAdd';
 import IssueFilter from './IssueFilter';
 import IssueTable from './IssueTable';
 
 const { useState, useEffect } = React;
-
-export type Issue = Record<string, unknown>;
 
 function issue_jsonToJs(issue:Issue) {
   // date returns as a string.
