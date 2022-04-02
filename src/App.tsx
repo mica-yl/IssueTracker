@@ -8,15 +8,30 @@ import {
   BrowserRouter,
   Route, Routes,
   Navigate,
+  Outlet,
 } from 'react-router-dom';
 
-import IssueList, { App } from './IssueList';
+import IssueList from './IssueList';
 import IssueEdit from './IssueEdit';
 
 const root = document.getElementById('root');
 
 function NotFound() {
   return (<p>Page Not found</p>);
+}
+
+function App() {
+  return (
+    <div>
+      <div className="header">
+        <h1>Issue Tracker</h1>
+      </div>
+      <Outlet />
+      <div className="footer">
+        <h1>A Footer</h1>
+      </div>
+    </div>
+  );
 }
 
 function RoutedApp() {

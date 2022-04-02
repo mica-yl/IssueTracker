@@ -12,7 +12,7 @@ function Selection(props) {
 
   );
 }
-function useStatus(statusArr: string[], noSelection = 'All') {
+export function useStatus(statusArr: string[], noSelection = 'All') {
   const statusSet = [...new Set([noSelection, ...statusArr])];
   const [statusFilter, setStatusFilter] = useState(noSelection);
   const { setSearchParams, newSearchParams, reduceSearchParams } = useSearchParamsUpdate();
@@ -23,29 +23,33 @@ function useStatus(statusArr: string[], noSelection = 'All') {
       const status = event.target.value;
       if (statusSet.includes(status)) {
         setStatusFilter(status);
-        if (status !== noSelection) {
-          setSearchParams(newSearchParams({ status }));
-        } else {
-          reduceSearchParams((u) => new URLSearchParams(
-            [...u.entries()]
-              .filter(([k, _v]) => k !== 'status')
-          ));
-        }
       }
     },
+    applyStatus() {
+      if (statusFilter !== noSelection) {
+        setSearchParams(newSearchParams({ status: statusFilter }));
+      } else {
+        reduceSearchParams((u) => new URLSearchParams(
+          [...u.entries()]
+            .filter(([k, _v]) => k !== 'status'),
+        ));
+      }
+    }
+    ,
   };
 }
-export function StatusFilter(props) {
-  const { statusArr } = props;
-  const { statusFilter, changeStatus, status } = useStatus(statusArr);
+
+export default function StatusFilter(props) {
+  const { defaultChoice, onChange, Choices } = props;
   return (
     <>
       status :
       {' '}
       <Selection
-        defaultChoice={statusFilter}
-        Choices={status}
-        onChange={changeStatus} />
+        defaultChoice={defaultChoice}
+        Choices={Choices}
+        onChange={onChange}
+      />
     </>
   );
 }

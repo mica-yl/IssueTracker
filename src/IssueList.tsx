@@ -141,17 +141,3 @@ export default function IssueList(props) {
     </div>
   );
 }
-
-export function App() {
-  return (
-    <div>
-      <div className="header">
-        <h1>Issue Tracker</h1>
-      </div>
-      <Outlet />
-      <div className="footer">
-        <h1>A Footer</h1>
-      </div>
-    </div>
-  );
-}
