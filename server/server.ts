@@ -23,10 +23,10 @@ const error_log = (err) => console.error(err);
 /**
  * @returns issues
  */
-function get_issuesPromise(filter?:Record<string, unknown>) {
+function get_issuesPromise(filter?: Record<string, unknown>) {
   // {Db} db
   // @type {{ collection: (arg0: string) => any[]; }} db
-  return (db:Db) => db.collection('issues').find(filter).toArray();
+  return (db: Db) => db.collection('issues').find(filter).toArray();
 }
 /**
  * @typedef {*} Issue
@@ -38,7 +38,7 @@ function get_issuesPromise(filter?:Record<string, unknown>) {
  * @returns {(db:Db) => any} insertIssuePipeline
  */
 function db_addIssue(issue) {
-  return function db_addIssue_result(db:Db) {
+  return function db_addIssue_result(db: Db) {
     return db.collection('issues').insertOne(issue);
   };
 }
@@ -50,15 +50,15 @@ const port = 8081;
 // start
 app.use(express.static('static'));
 app.use(bodyParser.json());
-type Status = 'Open'|'New'|'Assigned'|'Closed';
+type Status = 'Open' | 'New' | 'Assigned' | 'Closed';
 
 type Query = {
-  status?:Status,
-  effort?:{$lte?:number, $gte?:number},
+  status?: Status,
+  effort?: { $lte?: number, $gte?: number },
 };
 
 app.get('/api/v1/issues', function listAPI(req, res) {
-  const filter : Query = {};
+  const filter: Query = {};
   if (req.query.status) filter.status = req.query.status;
   if (req.query.effort_lte || req.query.effort_gte) {
     filter.effort = {};
@@ -97,6 +97,31 @@ app.post('/api/v1/issues', function createAPI(req, res) {
       res.status(422).json({ message: `Invalid request: ${err}` });
     },
   ).catch(error_log);
+});
+
+app.get('/api/v1/issues/:id', function getOneAPI(req, res) {
+  let id;
+  try {
+    id = new ObjectId(req.params.id);
+  } catch (err) {
+    res.status(422).json({ message: `Invalid issue ID format: ${err}` });
+  }
+  if (id) {
+    dbConnection
+      .then((db) => db.collection('issues')
+        .findOne({ _id: id }))
+      .then((issue) => {
+        if (!issue) {
+          res.status(404).json({ message: `No such issue : ${id}` });
+        } else {
+          res.json(issue);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: `Internal Server Error: ${err}` });
+      });
+  }
 });
 
 // temporary delete api
