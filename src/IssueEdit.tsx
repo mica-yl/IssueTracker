@@ -1,8 +1,9 @@
 import React, {
-  FormEvent, useEffect, useReducer, useState,
+  FormEvent, useEffect, useState,
 } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import useErrorBanner from './ErrorBanner';
+import Input from './Input';
 import StatusFilter from './StatusFilter';
 
 const statusOptions = ['All', 'Open', 'Assigned', 'New', 'Closed'];
@@ -30,9 +31,13 @@ function fetchIssue(id) {
 
 function getHandler(state, setState) {
   return function (name) {
-    return function onChange(event) {
+    return function onChange(event, value?) {
       const issue = { ...state };
-      issue[name] = event.target.value;
+      if (value !== undefined) {
+        issue[name] = value;
+      } else {
+        issue[name] = event.target.value;
+      }
       setState(issue);
     };
   };
@@ -100,10 +105,10 @@ export default function IssueEdit(props) {
         />
         <br />
         {'Effort : '}
-        <input value={effort} size={5} onChange={onChange('effort')} />
+        <Input validitionType="number" value={effort} size={5} onChange={onChange('effort')} />
         <br />
         {'Completed : '}
-        <input value={completionDate} onChange={() => 0} />
+        <input value={completionDate} onChange={onChange('completionDate')} />
         <br />
         <button type="submit">Submit</button>
       </form>
