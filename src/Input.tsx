@@ -2,37 +2,61 @@ import React, {
   ChangeEvent, useState, FocusEvent, useEffect,
 } from 'react';
 
+export type Nothing = {type:'invalid'};
+export type Just<X> = {type:'valid', value:X};
+export type Maybe<X> = Just<X>|Nothing;
+
+const Nothing: Nothing = { type: 'invalid' };
+const Just = (e:X):Just<X> => ({ type: 'valid', value: e });
+
+export function Maybe<X, Y>(value:Maybe<X>, f:(i:X)=> Y, g:()=> Y):Y {
+  if (value.type === 'valid') {
+    return f(value.value);
+  }
+  g();
+}
+
 type Validation<X> = {
   format:(i:X)=>string,
+  displayFormat:(i:X, editFormat:string)=>string,
   unformat:(i:string)=>X,
   match:RegExp,
+  equals:(a:X, b:X)=> boolean
 }
 
 type InputTypes = 'number'|'date';
 type InputValues = number|Date;
 
-const NumValidition : Validation<number> = {
-  format(num:unknown) {
+const NumValidition : Validation<number> = (function () {
+  function format(num:number) {
     return num != null ? num.toString() : '';
-  },
-  unformat(str:string) {
-  // const val = parseInt(str, 10);
-    const val = Object.is(str, '') ? NaN : Number(str);
-    return Number.isNaN(val) ? null : val;
-  },
-  match: /^-?\d*\.?\d*e?-?\d*$/,
-};
+  }
+  return {
+    format,
+    displayFormat: (_, old) => old,
+    unformat(str:string) {
+      // const val = parseInt(str, 10);
+      const val = Object.is(str, '') ? NaN : Number(str);
+      return Number.isNaN(val) ? null : val;
+    },
+    match: /^-?\d*\.?\d*e?-?\d*$/,
+    equals: (x, y) => x === y,
+  };
+}());
 
 const DateValidition : Validation<Date> = {
-  format(num:unknown) {
-    return num != null ? num.toString() : '';
+  format(date:Date) {
+    return (date !== null && 'toISOString' in date) ? date.toISOString().split('T')[0] : '';
+  },
+  displayFormat(date) {
+    return (date != null) ? date.toDateString() : '';
   },
   unformat(str:string) {
-  // const val = parseInt(str, 10);
-    const val = Object.is(str, '') ? NaN : Number(str);
-    return Number.isNaN(val) ? null : val;
+    const val = new Date(str);
+    return Number.isNaN(val.getTime()) ? null : val;
   },
-  match: /^\d{0,2}-[A-Z]{3}-\d{4}$/,
+  match: /^\+?[\d-]*$/,
+  equals: (x, y) => (x !== null && y !== null) && (x.getTime() === y.getTime()),
 };
 
 // function useValue<X>(initValue, validation:Validation<X>) {
@@ -40,16 +64,21 @@ const DateValidition : Validation<Date> = {
 //   const [value, setValue] = useState(format(globalValue));
 //   const [valid, setValid] = useState(true);
 // }
+type InputProps={
+  onChange:(_a:ChangeEvent<HTMLInputElement>, _b:Maybe<InputValues>)=>void,
+  value:InputValues,
+  validitionType:InputTypes
 
-export default function Input(props:
-  {
-    onChange:(_a:ChangeEvent<HTMLInputElement>, _b:InputValues)=>void,
-    value:InputValues,
-    validitionType:InputTypes
-
-  }) {
-  const { onChange, value: globalValue, validitionType } = props;
-  const { format, unformat, match } = (function choose(choice) {
+};
+export default function Input(props:InputProps) {
+  const {
+    onChange, value: globalValue, validitionType,
+    ...rest
+  } = props;
+  const {
+    format, displayFormat, unformat,
+    match, equals,
+  } = (function choose(choice) {
     switch (choice) {
       case 'number': return NumValidition;
       case 'date': return DateValidition;
@@ -58,24 +87,21 @@ export default function Input(props:
   }(validitionType));
   const [value, setValue] = useState(format(globalValue));
   const [valid, setValid] = useState(true);
+  const [focus, setFocus] = useState(false);
   function $onBlur(e:FocusEvent<HTMLInputElement>) {
-    const val = unformat(value.toString());
-    if (Object.is(val, null)) {
-      setValid(false);
-    } else {
-      setValid(true);
-      onChange(e, val);
-    }
+    const $value = unformat(value.toString());
+    const $valid = !Object.is($value, null) || value === '';
+    setValid($valid);
+    onChange(e, $valid && (value !== '') ? Just($value) : Nothing);
   }
   function $onChange(e:ChangeEvent<HTMLInputElement>) {
-    // const match = /^-?\d*\.?\d*e?-?\d*$/;
     if (e.target.value.match(match)) {
       setValue(e.target.value);
     }
   }
   useEffect(function autoformat() {
     const gv = format(globalValue);
-    if (unformat(gv) !== unformat(value)) {
+    if (!equals(unformat(gv), unformat(value))) {
       setValue(gv);
     }
   }, [globalValue]);
@@ -83,10 +109,11 @@ export default function Input(props:
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <input
+      {...rest}
       type="text"
-      {...props}
-      value={value}
-      onBlur={$onBlur}
+      value={(focus || !valid || value === '') ? value : displayFormat(globalValue, value)}
+      onBlur={(e) => (setFocus(false), $onBlur(e))}
+      onFocus={() => setFocus(true)}
       style={!valid ? { borderColor: 'red' } : {}}
       onChange={$onChange}
     />
