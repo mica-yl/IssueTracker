@@ -1,13 +1,17 @@
 import React, { Reducer, ReducerState, useReducer } from 'react';
 
-type ErrorMsg={source:string, message:string};
+type Key=string|number|symbol;
+type ErrorMsg={source:string, message:string, key:Key};
 
 type Command =
-{command:'push', arg:ErrorMsg }|{command:'clear'}|{command:'pop'};
+{command:'push', arg:ErrorMsg }|{command:'clear', key?:Key}|{command:'pop'};
 
 function reducer(state:ReducerState<Reducer<ErrorMsg[], Command>>, action:Command) {
   switch (action.command) {
     case 'clear':
+      if (action.key) {
+        return state.filter(({ key }) => key !== action.key);
+      }
       return [];
     case 'push':
       return state.concat([action.arg]);
@@ -39,6 +43,9 @@ export default function useErrorBanner() {
     },
     clearAllErrors() {
       dispatchError({ command: 'clear' });
+    },
+    clearErrors(key:Key) {
+      dispatchError({ command: 'clear', key });
     },
     ErrorBanner
     ,
