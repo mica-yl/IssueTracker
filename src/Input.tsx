@@ -88,17 +88,6 @@ export default function Input(props:InputProps) {
   const [value, setValue] = useState(format(globalValue));
   const [valid, setValid] = useState(true);
   const [focus, setFocus] = useState(false);
-  function $onBlur(e:FocusEvent<HTMLInputElement>) {
-    const $value = unformat(value.toString());
-    const $valid = !Object.is($value, null) || value === '';
-    setValid($valid);
-    onChange(e, $valid && (value !== '') ? Just($value) : Nothing);
-  }
-  function $onChange(e:ChangeEvent<HTMLInputElement>) {
-    if (e.target.value.match(match)) {
-      setValue(e.target.value);
-    }
-  }
   useEffect(function autoformat() {
     const gv = format(globalValue);
     if (!equals(unformat(gv), unformat(value))) {
@@ -106,6 +95,22 @@ export default function Input(props:InputProps) {
     }
   }, [globalValue]);
 
+  function $onBlur(e:FocusEvent<HTMLInputElement>) {
+    if (value === '') {
+      setValid(true);
+      onChange(e, Just(null));
+    } else {
+      const $value = unformat(value.toString());
+      const $valid = !Object.is($value, null);
+      setValid($valid);
+      onChange(e, $valid ? Just($value) : Nothing);
+    }
+  }
+  function $onChange(e:ChangeEvent<HTMLInputElement>) {
+    if (e.target.value.match(match)) {
+      setValue(e.target.value);
+    }
+  }
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <input

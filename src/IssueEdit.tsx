@@ -125,7 +125,7 @@ export default function IssueEdit(props) {
     title: '',
     status: '',
     owner: '',
-    effort: '',
+    effort: null,
     completionDate: null,
     created: null,
   };
