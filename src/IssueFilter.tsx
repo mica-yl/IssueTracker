@@ -4,6 +4,7 @@ import React, {
 import { Link } from 'react-router-dom';
 import { useSearchParamsUpdate } from './react-router-hooks';
 import StatusFilter from './StatusFilter';
+import { Status } from '../server/issue';
 
 function EffortFilter(props) {
   const { from: [from, handleFrom], to: [to, handleTo] } = props;
@@ -121,7 +122,7 @@ function useFilter(initFilter:Filter) {
   };
 }
 
-const statusOptions = ['Open', 'Assigned', 'New', 'Closed'];
+const statusOptions = Status;
 const isNumber = (s:string) => (s !== '') && !!(s.match(/^\d*$/));
 const isValidStatus = (s) => statusOptions.includes(s);
 export default function IssueFilter(props) {

@@ -6,8 +6,9 @@ import { useParams, Link } from 'react-router-dom';
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from './Input';
 import StatusFilter from './StatusFilter';
+import { Status } from '../server/issue';
 
-const statusOptions = ['All', 'Open', 'Assigned', 'New', 'Closed'];
+const statusOptions = ['All', ...Status];
 
 function fetchIssue(id) {
   return fetch(

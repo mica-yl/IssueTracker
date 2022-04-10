@@ -1,7 +1,7 @@
 import React, { Reducer, ReducerState, useReducer } from 'react';
 
 type Key=string|number|symbol;
-type ErrorMsg={source:string, message:string, key:Key};
+type ErrorMsg={source:string, message:string, key?:Key};
 
 type Command =
 {command:'push', arg:ErrorMsg }|{command:'clear', key?:Key}|{command:'pop'};

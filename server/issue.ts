@@ -1,20 +1,16 @@
+import IssueAdd from '../src/IssueAdd';
+
+export const Status = ['New', 'Open', 'Assigned', 'Fixed', 'Verified', 'Closed'] as const;
+export type Status = (typeof Status)[number];
+
 type Issue<X> = {
   _id: string,
-  status: string,
+  status: Status,
   owner: string,
   effort: number,
   created: X,
-  completionDate: X,
+  completionDate?: X,
   title: string,
-};
-
-const validIssueStatus = {
-  New: true,
-  Open: true,
-  Assigned: true,
-  Fixed: true,
-  Verified: true,
-  Closed: true,
 };
 
 const issueFieldType = {
@@ -28,28 +24,27 @@ const issueFieldType = {
 };
 
 /**
- * @typedef (*) Issue
- */
-
-/**
  * @param {Issue} issue
  * @returns {Promise<Issue>}
  */
-async function validateIssue(issue) {
+export async function validateIssue(
+  issue:Issue<string|Date>,
+  ignoreRequired: (fieldName:string)=> boolean = () => false,
+) {
   const newIssue = {};
-  const errors = [];
+  const errors:string[] = [];
   // copy scheme fields only and ignore other fields
   Object.keys(issueFieldType).forEach((field) => {
     const type = issueFieldType[field];
     const value = issue[field];
     if (value) {
       newIssue[field] = value;
-    } else if (type.required) {
+    } else if (type.required && !ignoreRequired(field)) {
       errors.push(`${field} is required`);
     }
   });
 
-  if (!validIssueStatus[issue.status]) {
+  if (!Status.includes(issue.status) && !ignoreRequired('status')) {
     errors.push(`${issue.status} isn't a valid status`);
   }
 
@@ -61,4 +56,15 @@ async function validateIssue(issue) {
   }
 }
 
-export default validateIssue;
+export function convertIssue(issue:Issue<Date|string>) : Issue<Date> {
+  // date returns as a string.
+  const newIssue = { ...issue };
+
+  if (newIssue.completionDate) {
+    newIssue.completionDate = new Date(issue.completionDate);
+  }
+  if (newIssue.created) {
+    newIssue.created = new Date(issue.created);
+  }
+  return newIssue;// for usage in `Promise`s or `map()`s
+}
