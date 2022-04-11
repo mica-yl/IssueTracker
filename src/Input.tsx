@@ -44,20 +44,35 @@ const NumValidition : Validation<number> = (function () {
   };
 }());
 
-const DateValidition : Validation<Date> = {
-  format(date:Date) {
-    return (date !== null && 'toISOString' in date) ? date.toISOString().split('T')[0] : '';
-  },
-  displayFormat(date) {
-    return (date != null) ? date.toDateString() : '';
-  },
-  unformat(str:string) {
-    const val = new Date(str);
-    return Number.isNaN(val.getTime()) ? null : val;
-  },
-  match: /^\+?[\d-]*$/,
-  equals: (x, y) => (x !== null && y !== null) && (x.getTime() === y.getTime()),
-};
+const DateValidition : Validation<Date> = (function () {
+  function fixDateString(str:string) {
+    // yyyy-mm-dd
+    if (str === '') return '';
+    const { groups: { year, month, day } } = str.match(/(?<year>\d*)(-(?<month>\d*)(-(?<day>\d*))?)?/);
+    const date = [year, month, day]
+      .map((v, i) => (v && v !== '' ? v.padStart(i === 0 ? 4 : 2, '0') : '01'))
+      .join('-')
+      .replace('--', '');
+    return date;
+  }
+
+  return {
+    format(date:Date) {
+      return (date !== null && 'toISOString' in date) ? date.toISOString().split('T')[0] : '';
+    },
+    displayFormat(date) {
+      return (date != null) ? date.toDateString() : '';
+    },
+    unformat(str:string) {
+    // bug : missing padding for year , month or day causes a day dec
+      const date = fixDateString(str);
+      const val = new Date(date);
+      return Number.isNaN(val.getTime()) ? null : val;
+    },
+    match: /^\+?[\d-]*$/,
+    equals: (x, y) => (x !== null && y !== null) && (x.getTime() === y.getTime()),
+  };
+}());
 
 // function useValue<X>(initValue, validation:Validation<X>) {
 //   const { format, unformat, match } = validation;

@@ -1,12 +1,12 @@
 import React, {
   ChangeEvent,
-  FormEvent, useEffect, useReducer, useState,
+  FormEvent, FormEventHandler, useEffect, useReducer, useState,
 } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from './Input';
 import StatusFilter from './StatusFilter';
-import { Status } from '../server/issue';
+import { Status, Issue, convertIssue } from '../server/issue';
 
 const statusOptions = ['All', ...Status];
 
@@ -112,14 +112,11 @@ function getHandler(state, setState) {
   };
 }
 
-function onSubmit(event: FormEvent) {
-  event.preventDefault();
-}
-
-// eslint-disable-next-line no-unused-vars
-export default function IssueEdit(props) {
+export default function IssueEdit() {
   const { id } = useParams();
-  const { ErrorBanner, pushError, clearErrors } = useErrorBanner();
+  const {
+    ErrorBanner, pushError, clearErrors, pushSuccess,
+  } = useErrorBanner();
   const initIssue = {
     _id: id,
     title: '',
@@ -146,7 +143,7 @@ export default function IssueEdit(props) {
       } else {
         setIssue({
           ...result,
-          created: new Date(result.created).toDateString(),
+          created: new Date(result.created),
           completionDate: result.completionDate ? new Date(result.completionDate) : null,
         });
       }
@@ -166,6 +163,47 @@ export default function IssueEdit(props) {
       clearErrors(key);
     }
   }, [validity]);
+
+  function onSubmit(event:FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const key = 'update-issue';
+    const source = 'issue updating';
+    const sentIssue = Object.fromEntries(Object.entries(issue).filter(([k, v]) => v !== null));
+    clearErrors(key);
+    if (getInvalidFields().length === 0) {
+      fetch(
+        `/api/v1/issues/${issue._id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sentIssue),
+        },
+      ).then((res) => {
+        if (res.ok) {
+          res.json()
+            .then(convertIssue)
+            .then((updatedIssue) => {
+              pushSuccess({
+                key,
+                source,
+                message: 'Updated issue successfully.',
+                type: 'Success',
+              });
+              setIssue({ ...initIssue, ...updatedIssue });
+            });
+        } else {
+          res.json().then((err) => pushError({ key, source, message: `Failed to update issue: ${err.message}` }));
+        }
+      }).catch((err) => pushError({
+        key,
+        source,
+        message: `Error in sending data to server : ${err.message}`,
+      }));
+    } else {
+      pushError({ key, source, message: 'fix invalid fields first' });
+    }
+  }
+
   return (
     <div>
       <Link to="/issues">Back</Link>

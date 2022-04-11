@@ -3,7 +3,7 @@ import IssueAdd from '../src/IssueAdd';
 export const Status = ['New', 'Open', 'Assigned', 'Fixed', 'Verified', 'Closed'] as const;
 export type Status = (typeof Status)[number];
 
-type Issue<X> = {
+export type Issue<X> = {
   _id: string,
   status: Status,
   owner: string,

@@ -20,6 +20,9 @@ function issue_jsonToJs(issue:Issue) {
   if (newIssue.completionDate) {
     newIssue.completionDate = new Date(issue.completionDate);
   }
+  if (newIssue.created) {
+    newIssue.created = new Date(issue.created);
+  }
   newIssue.created = new Date(newIssue.created);
   return newIssue;// for usage in `Promise`s or `map()`s
 }
