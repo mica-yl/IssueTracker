@@ -149,22 +149,31 @@ app.put('/api/v1/issues/:id', function putOneAPI(req, res) {
 });
 
 // temporary delete api
-app.delete('/api/v1/issue/_id/:_id', function deleteAPI(req, res) {
+app.delete('/api/v1/issues/:_id', function deleteOneAPI(req, res) {
   const { _id } = req.params;
   if (_id) {
-    dbConnection
-      .then((db) => db.collection('issues')
-        .deleteOne({ _id: new ObjectId(_id) }))
-    // .then((response) => response.json())
-      .then((result) => {
-        const { acknowledged: ack, deletedCount: done } = result;
-        if (ack && (done === 1)) {
-          res.status(200).send();
-        } else {
-          // send error
-        }
-      })
-      .catch(error_log);
+    Promise.resolve()
+      .then(() => new ObjectId(_id))
+      .then(
+        (id) => {
+          dbConnection
+            .then((db) => db.collection('issues')
+              .deleteOne({ _id: id }))
+            .then((result) => {
+              const { acknowledged: ack, deletedCount: done } = result;
+              if (ack && (done === 1)) {
+                res.status(200).json({ status: 'OK' });
+              } else {
+                res.json({ status: 'Warning: object not found' });
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+              res.status(500).json({ message: `Internal Server Error: ${error}` });
+            });
+        },
+        (error) => res.status(422).json({ message: `Invalid issue ID format: ${error}` }),
+      );
   }
 });
 // browser routing

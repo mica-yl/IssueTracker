@@ -50,6 +50,19 @@ function useIssues(i : Issue[] = []) {
   };
 }
 
+function deleteIssue(issueId) {
+  return fetch(
+    `/api/v1/issues/${issueId}`,
+    {
+      method: 'DELETE',
+    },
+  ).then((response) => {
+    if (response.status === 200) { // ok
+      return true;
+    }
+    return false;
+  });
+}
 // eslint-disable-next-line no-unused-vars
 export default function IssueList(props) {
   const [issues, setIssues] = useState([]);
@@ -114,17 +127,14 @@ export default function IssueList(props) {
       .catch((err) => console.error(`Error in sending data to server: ${err.message}`));
   }
 
-  function deleteIssue(issueId) {
+  function confirmDelete(issueId) {
     if (confirm(`Are you sure to delete issue : ${issueId}`)) {
-      return fetch(
-        `/api/v1/issue/_id/${issueId}`,
-        {
-          method: 'DELETE',
-        },
-      ).then((response) => {
-        if (response.status === 200) { // ok
+      deleteIssue(issueId).then((success) => {
+        if (success) {
           fetchData();// update
           setTimeout(() => alert(`delete API: \nissue ${issueId} is deleted!`));
+        } else {
+          setTimeout(() => alert(`delete API: Failed to delete issue #${issueId}`));
         }
       });
     }
@@ -138,7 +148,7 @@ export default function IssueList(props) {
       <hr />
       <button type="button" onClick={fetchData}>Refresh !</button>
       <button type="button" onClick={addTestIssue}>Add !</button>
-      <IssueTable issues={issues} onDelete={deleteIssue} />
+      <IssueTable issues={issues} onDelete={confirmDelete} />
       <hr />
       <IssueAdd onSubmit={createIssue} />
     </div>

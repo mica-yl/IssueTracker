@@ -1,7 +1,9 @@
-import React, { Reducer, ReducerState, useReducer } from 'react';
+import React, {
+  CSSProperties, Reducer, ReducerState, useReducer,
+} from 'react';
 
 type Key=string|number|symbol;
-type MessageType = 'Error'|'Success';
+type MessageType = 'Error'|'Success'|'Warning';
 export type Message={source:string, message:string, key?:Key, type?:MessageType};
 
 export type Command =
@@ -29,6 +31,22 @@ function getKey(msg:Message) {
     // Buffer.from(key).toString('base64')
   return btoa(key);
 }
+function NotificationStyle(type:MessageType):CSSProperties {
+  return {
+    backgroundColor: (function chooseColor() {
+      switch (type) {
+        case 'Error':
+          return 'red';
+        case 'Success':
+          return '#00ff0a';// green
+        case 'Warning':
+          return '#ffeb3b';// yellow
+        default:
+          return 'whitesmoke';
+      }
+    }()),
+  };
+}
 export default function useErrorBanner() {
   const [MessageQueue, dispatchError] = useReducer(reducer, []);
   function ErrorBanner({ display = true }:{display?:boolean}) {
@@ -38,7 +56,7 @@ export default function useErrorBanner() {
 
           {MessageQueue.map((msg) => (
             <p
-              style={{ backgroundColor: msg.type && msg.type === 'Success' ? '#00ff0a' : 'red' }}
+              style={NotificationStyle(msg.type || 'Error')}
               key={getKey(msg)}
             >
               {`${msg.source} : ${msg.message}`}
