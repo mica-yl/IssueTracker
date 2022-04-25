@@ -1,4 +1,6 @@
 import React from 'react';
+import Table from 'react-bootstrap/Table';
+
 import IssueRow from './IssueRow';
 import { Issue } from './Issue';
 
@@ -26,7 +28,7 @@ export default function IssueTable(
 
     */
   return (
-    <table className="bordered-table">
+    <Table hover responsive bordered striped>
       <thead>
         <tr>
           <th>id</th>
@@ -42,6 +44,6 @@ export default function IssueTable(
       <tbody>
         {issueRows}
       </tbody>
-    </table>
+    </Table>
   );
 }

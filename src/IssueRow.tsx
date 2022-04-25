@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import { Trash } from 'react-bootstrap-icons';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
 export default function IssueRow(props:{issue:Issue}) {
@@ -30,7 +32,7 @@ export default function IssueRow(props:{issue:Issue}) {
       <td>{effort}</td>
       <td>{completionDate ? completionDate.toDateString() : ''}</td>
       <td>{title}</td>
-      <td><button type="button" onClick={onDelete}>X</button></td>
+      <td><Button size="sm" variant="danger" type="button" onClick={onDelete}><Trash /></Button></td>
     </tr>
   );
 }

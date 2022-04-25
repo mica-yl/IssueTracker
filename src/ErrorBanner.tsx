@@ -1,13 +1,18 @@
 import React, {
   CSSProperties, Reducer, ReducerState, useReducer,
 } from 'react';
+import Alert from 'react-bootstrap/Alert';
 
 type Key=string|number|symbol;
 type MessageType = 'Error'|'Success'|'Warning';
+
+const invariants = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark', 'light'] as const;
+type Variant = (typeof invariants) [number];
+
 export type Message={source:string, message:string, key?:Key, type?:MessageType};
 
 export type Command =
-{command:'push', type?:MessageType, arg:Message }|{command:'clear', key?:Key}|{command:'pop'};
+{command:'push', type?:MessageType, arg:Message }|{command:'clear'|'hide', key?:Key}|{command:'pop'};
 
 function reducer(state:ReducerState<Reducer<Message[], Command>>, action:Command) {
   switch (action.command) {
@@ -20,6 +25,8 @@ function reducer(state:ReducerState<Reducer<Message[], Command>>, action:Command
       return state.concat([action.arg]);
     case 'pop':
       return state.slice(0, -1);
+    case 'hide':
+      return state.filter((_, i) => i !== action.key);
     default:
       return state;
   }
@@ -31,38 +38,40 @@ function getKey(msg:Message) {
     // Buffer.from(key).toString('base64')
   return btoa(key);
 }
-function NotificationStyle(type:MessageType):CSSProperties {
-  return {
-    backgroundColor: (function chooseColor() {
-      switch (type) {
-        case 'Error':
-          return 'red';
-        case 'Success':
-          return '#00ff0a';// green
-        case 'Warning':
-          return '#ffeb3b';// yellow
-        default:
-          return 'whitesmoke';
-      }
-    }()),
-  };
+function NotificationStyle(type:MessageType|Variant):string {
+  switch (type) {
+    case 'Error':
+      return 'danger';
+    case 'Success':
+      return 'success';// green
+    case 'Warning':
+      return 'warning';// yellow
+    default:
+      return type;
+  }
 }
 export default function useErrorBanner() {
   const [MessageQueue, dispatchError] = useReducer(reducer, []);
-  function ErrorBanner({ display = true }:{display?:boolean}) {
+  const hide = (i) => dispatchError({ command: 'hide', key: i });
+  function ErrorBanner({ display = true, alertStyle = {} }:
+    {display?:boolean, alertStyle:CSSProperties}) {
     if (display && MessageQueue.length > 0) {
       return (
-        <h2>
+        <>
 
-          {MessageQueue.map((msg) => (
-            <p
-              style={NotificationStyle(msg.type || 'Error')}
+          {MessageQueue.map((msg, i) => (
+            <Alert
               key={getKey(msg)}
+              variant={NotificationStyle(msg.type || 'danger')}
+              onClose={() => hide(i)}
+              dismissible
+              style={alertStyle}
             >
-              {`${msg.source} : ${msg.message}`}
-            </p>
+              <Alert.Heading>{msg.source}</Alert.Heading>
+              <p>{msg.message}</p>
+            </Alert>
           ))}
-        </h2>
+        </>
       );
     } return null;
   }

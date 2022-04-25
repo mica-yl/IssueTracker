@@ -1,41 +1,29 @@
 import React, {
   ChangeEvent,
-  FormEvent, FormEventHandler, useEffect, useReducer, useState,
+  FormEvent, useEffect, useReducer, useState,
 } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import {
+  Form, Button, ButtonToolbar, Card,
+  Col, Row, ButtonGroup,
+} from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from './Input';
-import StatusFilter from './StatusFilter';
+import { Selection } from './StatusFilter';
 import { Status, Issue, convertIssue } from '../server/issue';
+import { APIAndComponents } from './IssueAPI';
 
-const statusOptions = ['All', ...Status];
+const statusOptions = [...Status];
 
-function fetchIssue(id) {
-  return fetch(
-    `/api/v1/issues/${id}`,
-    { method: 'GET' },
-  ).then((response) => {
-    const json = response.json();
-    switch (response.status) {
-      case 200: // OK
-        return json;
-      case 404: // notfound
-        return json;
-      case 500:// internal server problem
-        return json;
-      case 422:// Unprocessable Entity
-        return { message: 'Unprocessable Entity !' };
-      default:
-        throw response;
-    }
-  });
-}
 function useFields(
   initIssue: Record<string, unknown>,
   initValidity?: Record<string, boolean> | ((name: string) => boolean) | boolean,
 ) {
-  function merger(state, action) {
-    return { ...state, ...action };
+  function merger(oldState, newPatialState) {
+    // Object.entries(newPatialState).forEach(([k, v]) => { });
+    return { ...oldState, ...newPatialState };
   }
   const [issue, setIssue] = useState(initIssue);
   // const [issue, dispatchIssue] = useReducer(merger, initIssue);
@@ -112,7 +100,8 @@ function getHandler(state, setState) {
   };
 }
 
-export default function IssueEdit() {
+export default function IssueEdit(props:APIAndComponents) {
+  const { API: { updateOneIssue, getOneIssue, confirmDelete } } = props;
   const { id } = useParams();
   const {
     ErrorBanner, pushError, clearErrors, pushSuccess,
@@ -134,9 +123,10 @@ export default function IssueEdit() {
     _id: ID, title, status, owner, effort,
     completionDate, created,
   } = issue;
+  const [col1, col2] = [{ sm: 3 }, { sm: 9, lg: 7 }];
 
   useEffect(function loadIssue() {
-    fetchIssue(id).then((result) => {
+    getOneIssue(id).then((result) => {
       if (result.message) {
         pushError({ source: 'Error', message: result.message });
         console.error(result);
@@ -162,80 +152,126 @@ export default function IssueEdit() {
     } else {
       clearErrors(key);
     }
-  }, [validity]);
+  }, [...Object.entries(validity).sort().flat()]);
 
   function onSubmit(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const key = 'update-issue';
     const source = 'issue updating';
-    const sentIssue = Object.fromEntries(Object.entries(issue).filter(([k, v]) => v !== null));
+    const sentIssue = Object.fromEntries(Object.entries(issue).filter(([_k, v]) => v !== null));
     clearErrors(key);
     if (getInvalidFields().length === 0) {
-      fetch(
-        `/api/v1/issues/${issue._id}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sentIssue),
+      updateOneIssue(issue._id, sentIssue).then(
+        (updatedIssue) => {
+          pushSuccess({
+            key,
+            source,
+            message: 'Updated issue successfully.',
+            type: 'Success',
+          });
+          setIssue({ ...initIssue, ...updatedIssue });
         },
-      ).then((res) => {
-        if (res.ok) {
-          res.json()
-            .then(convertIssue)
-            .then((updatedIssue) => {
-              pushSuccess({
-                key,
-                source,
-                message: 'Updated issue successfully.',
-                type: 'Success',
-              });
-              setIssue({ ...initIssue, ...updatedIssue });
-            });
-        } else {
-          res.json().then((err) => pushError({ key, source, message: `Failed to update issue: ${err.message}` }));
-        }
-      }).catch((err) => pushError({
-        key,
-        source,
-        message: `Error in sending data to server : ${err.message}`,
-      }));
+        (error) => { pushError({ key, source, message: error.message }); },
+      );
     } else {
       pushError({ key, source, message: 'fix invalid fields first' });
     }
   }
 
   return (
-    <div>
-      <Link to="/issues">Back</Link>
-      <p>
-        issue :
-      </p>
-      <ErrorBanner />
-      <form onSubmit={onSubmit}>
-        {`ID : ${ID}`}
-        <br />
-        {`Created : ${created}`}
-        <br />
-        {'Title : '}
-        <input value={title} onChange={onChange('title')} />
-        <br />
-        {'Owner : '}
-        <input value={owner} onChange={onChange('owner')} />
-        <br />
-        <StatusFilter
-          defaultChoice={status}
-          Choices={statusOptions}
-          onChange={onChange('status')}
-        />
-        <br />
-        {'Effort : '}
-        <Input validitionType="number" value={effort} size={5} onChange={onChange('effort')} />
-        <br />
-        {'Completed : '}
-        <Input validitionType="date" value={completionDate} onChange={onChange('completionDate')} />
-        <br />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+    <Card>
+      <Card.Header>Edit Issue</Card.Header>
+      <Card.Body>
+        <Form onSubmit={onSubmit}>
+          <div
+            className="my-auto"
+            style={{
+              position: 'fixed',
+              top: 30,
+              left: 0,
+              right: 0,
+              textAlign: 'center',
+            }}
+          >
+            <ErrorBanner alertStyle={{ display: 'inline-block', width: 500 }} />
+          </div>
+          <Row>
+            <Col {...col1}>
+              <Form.Label>ID</Form.Label>
+            </Col>
+            <Col {...col2}>
+              <Form.Text>{ID}</Form.Text>
+            </Col>
+          </Row>
+          <Form.Group>
+            <Row>
+              <Col as={Form.Label} {...col1}>
+                Created
+              </Col>
+              <Col as={Form.Text} {...col2}>
+                {created ? created.toString() : ''}
+              </Col>
+            </Row>
+          </Form.Group>
+          <Row>
+            <Col {...col1}>
+              <Form.Label>Title </Form.Label>
+            </Col>
+            <Col {...col2}>
+              <Form.Control required value={title} onChange={onChange('title')} />
+            </Col>
+          </Row>
+          <Row>
+            <Col {...col1}>
+              <Form.Label>Owner</Form.Label>
+
+            </Col>
+            <Col {...col2}>
+              <Form.Control value={owner} onChange={onChange('owner')} />
+            </Col>
+          </Row>
+          <Row>
+            <Col {...col1}><Form.Label>Status</Form.Label></Col>
+            <Col {...col2}>
+              <Selection
+                defaultChoice={status}
+                Choices={statusOptions}
+                onChange={onChange('status')}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col {...col1}><Form.Label>Effort</Form.Label></Col>
+            <Col {...col2}>
+              <Input
+                validitionType="number"
+                value={effort}
+                size={5}
+                onChange={onChange('effort')}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col as={Form.Label} {...col1}>Completed</Col>
+            <Col {...col2}>
+              <Input
+                validitionType="date"
+                value={completionDate}
+                onChange={onChange('completionDate')}
+              />
+            </Col>
+          </Row>
+          <ButtonToolbar>
+            <Button type="submit">Submit</Button>
+            <LinkContainer to="/issues">
+              <Button variant="link">Back</Button>
+            </LinkContainer>
+            <LinkContainer to="/issues">
+              <Button variant="danger" onClick={() => confirmDelete(id)}>Delete</Button>
+            </LinkContainer>
+          </ButtonToolbar>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 }

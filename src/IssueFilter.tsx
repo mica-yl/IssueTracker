@@ -2,6 +2,15 @@ import React, {
   ChangeEvent, Dispatch, useReducer, useEffect,
 } from 'react';
 import { Link } from 'react-router-dom';
+
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+
 import { useSearchParamsUpdate } from './react-router-hooks';
 import StatusFilter from './StatusFilter';
 import { Status } from '../server/issue';
@@ -9,13 +18,14 @@ import { Status } from '../server/issue';
 function EffortFilter(props) {
   const { from: [from, handleFrom], to: [to, handleTo] } = props;
   return (
-    <>
-      effort :
-      {' from'}
-      <input value={from} onChange={handleFrom} />
-      {' to '}
-      <input value={to} onChange={handleTo} />
-    </>
+    <Form.Group>
+      <Form.Label>effort</Form.Label>
+      <InputGroup>
+        <Form.Control value={from} placeholder="from" onChange={handleFrom} />
+        <InputGroup.Text>-</InputGroup.Text>
+        <Form.Control value={to} placeholder="to" onChange={handleTo} />
+      </InputGroup>
+    </Form.Group>
   );
 }
 
@@ -125,9 +135,10 @@ function useFilter(initFilter:Filter) {
 const statusOptions = Status;
 const isNumber = (s:string) => (s !== '') && !!(s.match(/^\d*$/));
 const isValidStatus = (s) => statusOptions.includes(s);
+const statusAll = '[ All ]';
 export default function IssueFilter(props) {
   const initFilter = {
-    status: 'All',
+    status: statusAll,
     effort_lte: '',
     effort_gte: '',
   };
@@ -140,37 +151,43 @@ export default function IssueFilter(props) {
   const { dispatch: dispatchEffortG, effort_gte } = useProperty('effort_gte', isNumber);
 
   useEffect(resetFilter, []);// use once at loading
-
+  const col = {
+    xs: 6, sm: 4, md: 3, lg: 2,
+  };
   return (
-    <div>
-      <p>
-        filters :
-        {' '}
-        <Link to={{ pathname: '.', search: '' }}>
-          clear
-        </Link>
-        <br />
+    <Row>
+      <Col>
         <StatusFilter
           defaultChoice={status}
-          Choices={['All'].concat(statusOptions)}
+          Choices={[statusAll].concat(statusOptions)}
           onChange={dispatchStatus}
         />
-        {' '}
+      </Col>
+      <Col>
         <EffortFilter
           from={[effort_gte, dispatchEffortG]}
           to={[effort_lte, dispatchEffortL]}
         />
-        <button type="submit" onClick={applyFilter}>Apply</button>
-        <button
-          type="button"
-          onClick={resetFilter}
-          disabled={!changed()}
-        >
-          Reset
+      </Col>
+      <Col>
+        <Form.Group>
+          <ButtonToolbar>
+            <ButtonGroup>
+              <Button type="submit" onClick={applyFilter}>Apply</Button>
+              <Button
+                type="reset"
+                onClick={resetFilter}
+                disabled={!changed()}
+              >
+                Reset
 
-        </button>
-        <button type="button" onClick={clearFilter}>Clear</button>
-      </p>
-    </div>
+              </Button>
+              <Form.Label> </Form.Label>
+              <Button type="button" onClick={clearFilter}>Clear</Button>
+            </ButtonGroup>
+          </ButtonToolbar>
+        </Form.Group>
+      </Col>
+    </Row>
   );
 }

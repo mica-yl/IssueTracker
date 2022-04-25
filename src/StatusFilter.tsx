@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
-function Selection(props) {
+export function Selection(props) {
   const { defaultChoice, onChange, Choices } = props;
   return (
-    <select value={defaultChoice} onChange={onChange}>
+    <Form.Select value={defaultChoice} onChange={onChange}>
       {Choices.map((aChoice) => (
         <option key={aChoice} value={aChoice}>{aChoice}</option>
       ))}
-    </select>
-
+    </Form.Select>
   );
 }
 export function useStatus(statusArr: string[], noSelection = 'All') {
@@ -42,14 +43,17 @@ export function useStatus(statusArr: string[], noSelection = 'All') {
 export default function StatusFilter(props) {
   const { defaultChoice, onChange, Choices } = props;
   return (
-    <>
-      status :
-      {' '}
-      <Selection
-        defaultChoice={defaultChoice}
-        Choices={Choices}
-        onChange={onChange}
-      />
-    </>
+    <Form.Group>
+      <Form.Label>
+        status
+      </Form.Label>
+      <InputGroup>
+        <Selection
+          defaultChoice={defaultChoice}
+          Choices={Choices}
+          onChange={onChange}
+        />
+      </InputGroup>
+    </Form.Group>
   );
 }

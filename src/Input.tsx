@@ -2,6 +2,8 @@ import React, {
   ChangeEvent, useState, FocusEvent, useEffect,
 } from 'react';
 
+import FormControl from 'react-bootstrap/FormControl';
+
 export type Nothing = {type:'invalid'};
 export type Just<X> = {type:'valid', value:X};
 export type Maybe<X> = Just<X>|Nothing;
@@ -128,13 +130,14 @@ export default function Input(props:InputProps) {
   }
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
-    <input
+    <FormControl
       {...rest}
       type="text"
       value={(focus || !valid || value === '') ? value : displayFormat(globalValue, value)}
       onBlur={(e) => (setFocus(false), $onBlur(e))}
       onFocus={() => setFocus(true)}
-      style={!valid ? { borderColor: 'red' } : {}}
+      isValid={valid && value !== '' && !focus}
+      isInvalid={!valid}
       onChange={$onChange}
     />
   );
