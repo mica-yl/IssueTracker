@@ -2,10 +2,10 @@ import React from 'react';
 import propTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
 import Nav from 'react-bootstrap/Nav';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+// import Container from 'react-bootstrap/Container';
 
 const { useState } = React;
 
@@ -39,32 +39,25 @@ export default function IssueAddNavItem(props) {
         {children}
       </Nav.Item>
       <Modal show={show} onHide={() => setShow(false)}>
-        <Modal.Header closeButton>Add Issue</Modal.Header>
+        <Modal.Header closeButton>Create Issue</Modal.Header>
         <Form name="issueAdd" onSubmit={handleSubmit}>
-          <Form.Group>
-            <Modal.Body>
-              <Row>
-                <Col xs={4} md={3} lg={2}>
-                  <Form.Control placeholder="Owner" value={owner} onChange={handleChange(setOwner)} />
-                </Col>
-                <Col xs={6} md={5} lg={4}>
-                  <Form.Control placeholder="Title" value={title} onChange={handleChange(setTitle)} />
-                </Col>
+          <Modal.Body>
+            {[['Owner', owner, setOwner],
+              ['Title', title, setTitle],
+            ].map(([name, state, setter]) => (
+              <Form.Group className="mb-3">
+                <Form.Label>{name}</Form.Label>
+                <Form.Control placeholder={name} value={state} onChange={handleChange(setter)} />
+              </Form.Group>
+            ))}
 
-              </Row>
-            </Modal.Body>
-            <Modal.Footer>
-              <Row>
-
-                <Col>
-                  <Button type="submit">Submit</Button>
-                </Col>
-                <Col>
-                  <Button variant="secondary" onClick={() => setShow(false)}>Cancel</Button>
-                </Col>
-              </Row>
-            </Modal.Footer>
-          </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <ButtonToolbar className="pull-left">
+              <Button type="submit">Submit</Button>
+              <Button variant="secondary" onClick={() => setShow(false)}>Cancel</Button>
+            </ButtonToolbar>
+          </Modal.Footer>
         </Form>
       </Modal>
     </>
