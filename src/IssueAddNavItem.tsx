@@ -53,9 +53,9 @@ export default function IssueAddNavItem(props) {
 
           </Modal.Body>
           <Modal.Footer>
-            <ButtonToolbar className="pull-left">
-              <Button type="submit">Submit</Button>
-              <Button variant="secondary" onClick={() => setShow(false)}>Cancel</Button>
+            <ButtonToolbar className="gap-2">
+              <Button type="submit" variant="primary">Submit</Button>
+              <Button onClick={() => setShow(false)}>Cancel</Button>
             </ButtonToolbar>
           </Modal.Footer>
         </Form>
