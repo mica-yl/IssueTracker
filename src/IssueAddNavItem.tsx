@@ -16,6 +16,7 @@ export default function IssueAddNavItem(props) {
   const [show, setShow] = useState(false);
   /* TODO? : function need to be defined only once */
   function handleSubmit(event) {
+    event.preventDefault();
     onSubmit({
       title,
       owner,
@@ -26,9 +27,9 @@ export default function IssueAddNavItem(props) {
       if (isDone === true) {
         setOwner('');
         setTitle('');
+        setShow(false);// hide after adding one
       }
     });
-    event.preventDefault();
   }
   function handleChange(setter) {
     return (event) => setter(event.target.value);
@@ -45,7 +46,7 @@ export default function IssueAddNavItem(props) {
             {[['Owner', owner, setOwner],
               ['Title', title, setTitle],
             ].map(([name, state, setter]) => (
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" key={name}>
                 <Form.Label>{name}</Form.Label>
                 <Form.Control placeholder={name} value={state} onChange={handleChange(setter)} />
               </Form.Group>
@@ -55,7 +56,7 @@ export default function IssueAddNavItem(props) {
           <Modal.Footer>
             <ButtonToolbar className="gap-2">
               <Button type="submit" variant="primary">Submit</Button>
-              <Button onClick={() => setShow(false)}>Cancel</Button>
+              <Button variant="outline-dark" onClick={() => setShow(false)}>Cancel</Button>
             </ButtonToolbar>
           </Modal.Footer>
         </Form>

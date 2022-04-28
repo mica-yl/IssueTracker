@@ -5,7 +5,7 @@ import React, {
 import { useParams, Link } from 'react-router-dom';
 import {
   Form, Button, ButtonToolbar, Card,
-  Col, Row, ButtonGroup,
+  Col, Row, ButtonGroup, 
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
@@ -195,6 +195,21 @@ export default function IssueEdit(props:APIAndComponents) {
           >
             <ErrorBanner alertStyle={{ display: 'inline-block', width: 500 }} />
           </div>
+          {/*
+          [['ID',ID,Form.Text],
+            ['Created',created,Form.Text],
+          ].map(([name,state,Component])=>(
+            <Row>
+            <Col {...col1}>
+              <Form.Label>ID</Form.Label>
+            </Col>
+            <Col {...col2}>
+              <Component>{ID}</Component>
+            </Col>
+          </Row>
+          ))
+          */
+          }
           <Row>
             <Col {...col1}>
               <Form.Label>ID</Form.Label>
@@ -251,7 +266,7 @@ export default function IssueEdit(props:APIAndComponents) {
               />
             </Col>
           </Row>
-          <Row>
+          <Row className='mb-3'>
             <Col as={Form.Label} {...col1}>Completed</Col>
             <Col {...col2}>
               <Input
@@ -261,13 +276,15 @@ export default function IssueEdit(props:APIAndComponents) {
               />
             </Col>
           </Row>
-          <ButtonToolbar>
+          <ButtonToolbar className="justify-content-between">
+            <ButtonGroup>
             <Button type="submit">Submit</Button>
             <LinkContainer to="/issues">
               <Button variant="link">Back</Button>
             </LinkContainer>
+            </ButtonGroup>
             <LinkContainer to="/issues">
-              <Button variant="danger" onClick={() => confirmDelete(id)}>Delete</Button>
+              <Button variant="outline-danger" className="pull-right" onClick={() => confirmDelete(id)}>Delete</Button>
             </LinkContainer>
           </ButtonToolbar>
         </Form>
