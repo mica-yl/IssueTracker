@@ -8,6 +8,7 @@ import path from 'path';
 import { Db, MongoClient, ObjectId } from 'mongodb';
 
 import { validateIssue, Status, convertIssue } from './issue';
+import renderedPageRouter from './renderedPageRouter';
 
 installMapSupport();
 
@@ -41,8 +42,9 @@ const app = express();
 const port = 8081;
 
 // start
-app.use(express.static('static'));
 app.use(bodyParser.json());
+
+app.use(express.static('static'));
 
 type Query = {
   status?: Status,
@@ -176,11 +178,14 @@ app.delete('/api/v1/issues/:_id', function deleteOneAPI(req, res) {
       );
   }
 });
+
+
 // browser routing
-app.get('*', function indexFallback(req, res) {
-  res.sendFile(path.resolve('static/index.html'));
-  console.log(`${req.url} -> /index.html`);
-});
+app.use('/', renderedPageRouter);
+// app.get('*', function indexFallback(req, res) {
+//   res.sendFile(path.resolve('static/index.html'));
+//   console.log(`${req.url} -> /index.html`);
+// });
 
 //  throw new Error('test source mapping');// thrown 1;//doesn't work
 // run

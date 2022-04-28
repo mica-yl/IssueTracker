@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   entry: {
-    app: [path.resolve(__dirname, './src/App')],
+    app: [path.resolve(__dirname, './src/Client')],
   },
   output: {
     filename: '[name].bundle.js',
@@ -40,13 +40,13 @@ module.exports = {
     compress: true,
     hot: true,
     proxy: {
-      '*': 'http://localhost:8081',
+      '**': 'http://localhost:8081',
     },
     historyApiFallback: true,
   },
   plugins: [],
   devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.ts', '.tsx', '.json'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
   },
 };
