@@ -6,7 +6,7 @@ import template from './template.js';
 
 const renderedPageRouter = new Router();
 renderedPageRouter.get('*', (req, res) => {
-  const html = renderToString(<HelloWorld />);
+  const html = renderToString(<HelloWorld addressee='Server' />);
   res.send(template(html));
 });
 

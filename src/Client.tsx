@@ -6,7 +6,7 @@ import HelloWorld from './HelloWorld';
 
 const contentNode = document.getElementById('root');
 
-ReactDOM.render(<HelloWorld />, contentNode);
+ReactDOM.render(<HelloWorld addressee="Client" />, contentNode);
 
 if (module.hot) {
   module.hot.accept();
