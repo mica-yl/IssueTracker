@@ -1,14 +1,18 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const webpack = require('webpack');
-const { Volume, createFsFromVolume } = require('memfs');
+const { promisify } = require('util');
+
+const solidFs = require('fs');
+const { fs: softFs } = require('memfs');
 const { patchRequire } = require('fs-monkey');
-const webpackConfig = require('../webpack.server-config');
 const { ufs: hybridFs } = require('unionfs');
-const SolidFs = require('fs');
 
+const webpackConfig = require('../webpack.server-config');
 
-const vol = new Volume();
-const fs = createFsFromVolume(vol);
-const ls = (path, fs = fs) => {
+const compiler = webpack(webpackConfig);
+compiler.outputFileSystem = softFs;
+
+const ls = (path, fs = softFs) => {
   fs.readdir(path, (err, files) => {
     if (err) {
       return console.error(err);
@@ -17,23 +21,43 @@ const ls = (path, fs = fs) => {
       console.log(file);
     });
   });
-}
+};
+// /**
+//  * @type {webpack.Stats}
+//  *  */
+// const stats = await promisify(compiler.run.bind(compiler))();
+// const exit = await promisify(compiler.close.bind(compiler))();
+// console.log(stats.toString({ colors: true }));
+// if (!stats.hasErrors()) {
+//   hybridFs
+//     .use(SolidFs)
+//     .use(softFs);
+//   patchRequire(hybridFs);
+//   console.log('=====App====');
+//   require('../dist/server.bundle.js');
+// }
 
-hybridFs.use(fs).use(SolidFs);
+promisify(compiler.run.bind(compiler))()
+  .then((/** @type {webpack.Stats} */ stats) => {
+    promisify(compiler.close.bind(compiler))()
+      .catch((closeErr) => (closeErr ? console.log('Compiler Close Error : ', closeErr) : 0));
 
-const compiler = webpack(webpackConfig);
-compiler.outputFileSystem = fs;
-compiler.run((err, stats) => {
-  if (err) {
-    console.log('Failed !');
-    console.error(err);
-    return;
-  }
-  compiler.close((closeErr) => closeErr ? console.log('Compiler Close Error : ', closeErr) : 0);
-  // ls('.', ufs);
-  // patchRequire(fs);
-  console.log(stats.toString({ colors: true }));
-  patchRequire(hybridFs);
-  console.log('=====App====');
-  require('../dist/server.bundle.js');
-});
+    console.log(stats.toString({ colors: true }));
+
+    if (!stats.hasErrors()) {
+      hybridFs
+        .use(solidFs)
+        .use(softFs);
+      patchRequire(hybridFs);
+      console.log('=====App====');
+      // eslint-disable-next-line import/no-unresolved,global-require
+      require('../dist/server.bundle.js');// in softFs
+    }
+  }).catch(console.error);
+
+/* sources
+https://webpack.js.org/api/node/
+https://github.com/streamich/fs-monkey/blob/master/docs/api/patchRequire.md
+https://github.com/streamich/unionfs
+https://github.com/streamich/memfs/blob/HEAD/docs/reference.md
+*/
