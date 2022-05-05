@@ -6,13 +6,6 @@ import { Db, ObjectId } from 'mongodb';
 import { validateIssue, Status, convertIssue } from './issue';
 import renderedPageRouter from './renderedPageRouter';
 
-
-// installMapSupport();
-
-// db
-// const client = MongoClient.connect('mongodb://localhost:27017');
-// const dbConnection = client.then((aClient) => aClient.db('issuetracker'));
-
 /// promise pipelines/middleware
 const error_log = (err) => console.error(err);
 /**
@@ -39,7 +32,7 @@ type Query = {
   effort?: { $lte?: number, $gte?: number },
 };
 
-function getApp(databaseConnection:Promise<Db>) {
+function getApp(databaseConnection:Promise<Db>|Db|void) {
   if (!databaseConnection) {
     throw Error(`DataBase is ${databaseConnection}`);
   }
@@ -179,27 +172,11 @@ function getApp(databaseConnection:Promise<Db>) {
         );
     }
   });
-
-  
-  app.use(
-    '/',
-    renderedPageRouter,
-  );
-  // app.get('*', function indexFallback(req, res) {
-  //   res.sendFile(path.resolve('static/index.html'));
-  //   console.log(`${req.url} -> /index.html`);
-  // });
+  // browser routing
+  app.use('/', renderedPageRouter);
 
   return app;
 }
 getApp.port = 8081;
 
 export default getApp;
-
-//  throw new Error('test source mapping');// thrown 1;//doesn't work
-// run
-// dbConnection.then((_db) => {
-//   app.listen(port, function startServer() {
-//     console.log(`App started at ${port}`);
-//   });
-// }).catch(error_log);

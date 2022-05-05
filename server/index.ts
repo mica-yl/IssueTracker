@@ -4,11 +4,15 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import http from 'http';
 import { MongoClient } from 'mongodb';
+import debug from 'debug';
+import type { Express } from 'express';
+import getApp from './server';
 
 SourceMapSupport.install();
 
+const log = debug('app:server:index');
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const getApp = require('./server').default;
 
 const server = http.createServer();
 (async () => {
@@ -24,26 +28,24 @@ const server = http.createServer();
     console.log(`App started on port ${getApp.port}`);
   });
 
-  function dispatchServer(firstAppInstance) {
+  function counter() {
+    let n = 0;
+    return () => n++;
+  }
+  function dispatchServer(firstAppInstance:Express) {
     let localAppInstance = firstAppInstance;
+    const tick = counter();
     return () => {
-      server.removeListener('request', localAppInstance);
+      log(`App dispatching [${tick()}] ...`);// why it doesn't change ?
+      server.removeAllListeners('request');
+      // server.removeListener('request', localAppInstance);// triggers a bug ?
       const getAppPatched = require('./server').default;     // eslint-disable-line
       localAppInstance = getAppPatched(db);
       server.on('request', localAppInstance);
     };
   }
 
-  // if ('hot' in module) {
-  //   module.hot.accept(
-  //     ['./renderedPageRouter.tsx'],
-  //     //  dispatchServer(appInstance));
-  //     // module.hot.accept('../src/HelloWorld.tsx',
-  //     () => {
-  //       const routerDispatch = require('./renderedPageRouter').default;
-  //       console.log(`dispatching with ${routerDispatch.uuid}`);
-  //       appInstance.setRenderedPageRouter(routerDispatch);
-  //     },
-  //   );
-  // }
+  if ('hot' in module) {
+    module.hot.accept('./server.ts', dispatchServer(appInstance));
+  }
 })();

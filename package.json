@@ -10,7 +10,7 @@
     "lint-debug": "eslint . --debug",
     "compile-server": "webpack -c webpack.server-config.js",
     "watch-server": "webpack -c webpack.server-config.js --watch",
-    "start-hook": "nodemon -w server --ext 'jsm,js,ts,jsx,tsx' server/webpack-start-hook.js",
+    "start-hook": "DEBUG=app:* nodemon -w server/index.ts server/webpack-start-hook.js -- -w",
     "compile": "webpack",
     "watch": "webpack-dev-server",
     "dev-all": "npm run watch & npm run watch-server & npm start",

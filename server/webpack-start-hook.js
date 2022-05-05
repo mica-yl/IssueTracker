@@ -10,6 +10,11 @@ const { ufs: hybridFs } = require('unionfs');
 const webpackServerConfig = require('../webpack.server-config');
 const webpackClientConfig = require('../webpack.config');
 
+const argWatch = (() => {
+  const arg = process.argv[2];
+  return ['-w', '--watch'].some((flag) => flag === arg);
+})();
+
 const serverCompiler = webpack(webpackServerConfig);
 serverCompiler.outputFileSystem = softFs;
 
@@ -75,8 +80,11 @@ function watch(compiler, requireApp) {
     },
   );
 }
-
-watch(serverCompiler, runApp);
+if (argWatch) {
+  watch(serverCompiler, runApp);
+} else {
+  run(serverCompiler, runApp);
+}
 
 // module.exports = { watch, run };
 /* sources
