@@ -7,54 +7,78 @@ const { fs: softFs } = require('memfs');
 const { patchRequire } = require('fs-monkey');
 const { ufs: hybridFs } = require('unionfs');
 
-const webpackConfig = require('../webpack.server-config');
+const webpackServerConfig = require('../webpack.server-config');
+const webpackClientConfig = require('../webpack.config');
 
-const compiler = webpack(webpackConfig);
-compiler.outputFileSystem = softFs;
+const serverCompiler = webpack(webpackServerConfig);
+serverCompiler.outputFileSystem = softFs;
+
+// const clientCompiler = webpack(webpackClientConfig);
+// clientCompiler.outputFileSystem = softFs;
 
 const ls = (path, fs = softFs) => {
   fs.readdir(path, (err, files) => {
     if (err) {
       return console.error(err);
     }
-    files.forEach(file => {
+    files.forEach((file) => {
       console.log(file);
     });
   });
 };
-// /**
-//  * @type {webpack.Stats}
-//  *  */
-// const stats = await promisify(compiler.run.bind(compiler))();
-// const exit = await promisify(compiler.close.bind(compiler))();
-// console.log(stats.toString({ colors: true }));
-// if (!stats.hasErrors()) {
-//   hybridFs
-//     .use(SolidFs)
-//     .use(softFs);
-//   patchRequire(hybridFs);
-//   console.log('=====App====');
-//   require('../dist/server.bundle.js');
-// }
+const print = (stats) =>
+  (stats ? console.log(stats.toString({ colors: true })) : console.log(stats));
 
-promisify(compiler.run.bind(compiler))()
-  .then((/** @type {webpack.Stats} */ stats) => {
-    promisify(compiler.close.bind(compiler))()
-      .catch((closeErr) => (closeErr ? console.log('Compiler Close Error : ', closeErr) : 0));
-
-    console.log(stats.toString({ colors: true }));
-
-    if (!stats.hasErrors()) {
-      hybridFs
-        .use(solidFs)
-        .use(softFs);
-      patchRequire(hybridFs);
-      console.log('=====App====');
-      // eslint-disable-next-line import/no-unresolved,global-require
-      require('../dist/server.bundle.js');// in softFs
+function once(f) {
+  let lock = true;
+  return () => {
+    if (lock) {
+      lock = false;
+      f();
     }
-  }).catch(console.error);
+  };
+}
+function runApp() {
+  console.log('=====App====');
+  // eslint-disable-next-line import/no-unresolved,global-require
+  require('../dist/server.bundle.js');// in softFs
+}
 
+function dispatchApp(stats, requireApp) {
+  if (!stats.hasErrors()) {
+    hybridFs
+      .use(solidFs)
+      .use(softFs);
+    patchRequire(hybridFs);
+    requireApp();
+  }
+}
+
+function run(compiler, requireApp) {
+  promisify(compiler.run.bind(compiler))()
+    .then((/** @type {webpack.Stats} */ stats) => {
+      promisify(compiler.close.bind(compiler))()
+        .catch((closeErr) => (closeErr ? console.log('Compiler Close Error : ', closeErr) : 0));
+
+      print(stats);
+      (async () => dispatchApp(stats, requireApp))();
+    }).catch(console.error);
+}
+
+function watch(compiler, requireApp) {
+  const requireAppOnce = once(requireApp);
+  compiler.watch(
+    {},
+    (err, watchStats) => {
+      print(watchStats);
+      dispatchApp(watchStats, requireAppOnce);
+    },
+  );
+}
+
+watch(serverCompiler, runApp);
+
+// module.exports = { watch, run };
 /* sources
 https://webpack.js.org/api/node/
 https://github.com/streamich/fs-monkey/blob/master/docs/api/patchRequire.md

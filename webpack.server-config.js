@@ -2,14 +2,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
-  // target: 'node',
+  target: 'node',
   externalsPresets: { node: true },
   externals: nodeExternals(),
   entry: {
-    server: [path.resolve(__dirname, './server/server.ts')],
+    server: [path.resolve(__dirname, './server/index.ts'), './node_modules/webpack/hot/poll?1000'],
+
   },
   output: {
     filename: '[name].bundle.js',
@@ -30,7 +32,7 @@ module.exports = {
       },
     ],
   },
-  plugins: [],
+  plugins: [new webpack.HotModuleReplacementPlugin()],
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
