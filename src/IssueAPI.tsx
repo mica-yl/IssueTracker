@@ -1,5 +1,7 @@
 import React, { createContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import fetch from 'isomorphic-fetch/';
+
 import { convertIssue } from '../server/issue';
 import useAlert from './AlertMsg';
 import useAsk from './Ask';
@@ -31,7 +33,7 @@ export function deleteIssue(issueId) {
   });
 }
 
-function getOneIssue(id) {
+async function getOneIssue(id) {
   return fetch(
     `/api/v1/issues/${id}`,
     { method: 'GET' },

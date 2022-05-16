@@ -21,6 +21,11 @@ rules:
     - argsIgnorePattern: ^_
       varsIgnorePattern: ^_
       destructuredArrayIgnorePattern: ^_
+  react/jsx-filename-extension:
+    - error
+    - extensions:
+        - .jsx
+        - .tsx
 parser: "@typescript-eslint/parser"
 plugins:
   - "@typescript-eslint"
