@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 import {
   BrowserRouter,
   Route, Routes,
-  Navigate,
   Outlet,
 } from 'react-router-dom';
 // bootstrap

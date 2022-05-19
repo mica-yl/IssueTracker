@@ -46,6 +46,6 @@ const server = http.createServer();
   }
 
   if ('hot' in module) {
-    module.hot.accept('./server.ts', dispatchServer(appInstance));
+    module.hot.accept(['./server.ts', './renderedPageRouter.tsx'], dispatchServer(appInstance));
   }
 })();
