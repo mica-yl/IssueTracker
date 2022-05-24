@@ -2,13 +2,12 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import Accordion from 'react-bootstrap/Accordion';
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 
 import IssueAdd from './IssueAdd';
-import IssueFilter from './IssueFilter';
+import { IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
 import useAsk from './Ask';
 import useAlert from './AlertMsg';
@@ -59,14 +58,7 @@ export default function IssueList(props) {
   return (
     <Stack gap={3}>
       <Stack>
-        <Accordion>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Filters</Accordion.Header>
-            <Accordion.Body>
-              <IssueFilter filters={filters} />
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+        <IssueFilterAccordion filters={filters} />
       </Stack>
       <Stack direction="horizontal" gap={3}>
         <Button type="button" onClick={fetchData}>

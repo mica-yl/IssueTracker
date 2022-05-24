@@ -5,6 +5,7 @@ import { Db, ObjectId } from 'mongodb';
 
 import { validateIssue, Status, convertIssue } from './issue';
 import renderedPageRouter from './renderedPageRouter';
+import { formatSummary } from './summary';
 
 /// promise pipelines/middleware
 const error_log = (err) => console.error(err);
@@ -47,24 +48,47 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
 
   app.get('/api/v1/issues', function listAPI(req, res) {
     const filter: Query = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.effort_lte || req.query.effort_gte) {
+    const {
+      status, effort_gte, effort_lte, _summary,
+    } = req.query;
+    if (status) filter.status = status;
+    if (effort_lte || effort_gte) {
       filter.effort = {};
-      if (req.query.effort_lte) {
-        filter.effort.$lte = parseInt(req.query.effort_lte, 10);
+      if (effort_lte) {
+        filter.effort.$lte = parseInt(effort_lte, 10);
       }
-      if (req.query.effort_gte) {
-        filter.effort.$gte = parseInt(req.query.effort_gte, 10);
+      if (effort_gte) {
+        filter.effort.$gte = parseInt(effort_gte, 10);
       }
     }
 
-    dbConnection.then(get_issuesPromise(filter)).then((issues) => {
-      const metadata = { total_count: issues.length };
-      res.json({ _metadata: metadata, records: issues });
-    }).catch((err) => {
-      console.error(err);
-      res.status(500).json({ message: `Internal Server Error : ${err}` });
-    });
+    if (_summary === undefined) {
+      /*
+      get list of issues
+       */
+      dbConnection.then(get_issuesPromise(filter)).then((issues) => {
+        const metadata = { total_count: issues.length };
+        res.json({ _metadata: metadata, records: issues });
+      }).catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: `Internal Server Error : ${err}` });
+      });
+    } else {
+      /* summary
+      */
+      dbConnection.then((db) => db.collection('issues').aggregate([
+        { $match: filter },
+        { $project: { _id: '$_id', owner: '$owner', status: { $concat: '$status' } } },
+        { $group: { _id: { owner: '$owner', status: { $concat: '$status' } }, count: { $count: {} } } },
+      ]).toArray())
+        .then(formatSummary)
+        .then((summary) => {
+          res.json(summary);
+        }).catch((error) => {
+          console.log(error);
+          res.status(500).json({ message: `Internal Server Error: ${error}` });
+        });
+    }
   });
 
   app.post('/api/v1/issues', function createAPI(req, res) {

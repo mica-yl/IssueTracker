@@ -11,6 +11,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
+import Accordion from 'react-bootstrap/Accordion';
+
 import { useSearchParamsUpdate } from './react-router-hooks';
 import StatusFilter from './StatusFilter';
 import { Status } from '../server/issue';
@@ -136,12 +138,9 @@ const statusOptions = Status;
 const isNumber = (s:string) => (s !== '') && !!(s.match(/^\d*$/));
 const isValidStatus = (s) => statusOptions.includes(s);
 const statusAll = '[ All ]';
-export default function IssueFilter(props) {
-  const initFilter = {
-    status: statusAll,
-    effort_lte: '',
-    effort_gte: '',
-  };
+
+export function IssueFilter(props:{filter?:Filter}) {
+  const { filter: initFilter } = props;
   const {
     useProperty, applyFilter, clearFilter, resetFilter, changed,
   } = useFilter(initFilter);
@@ -191,3 +190,26 @@ export default function IssueFilter(props) {
     </Row>
   );
 }
+IssueFilter.defaultProps = {
+  filter: {
+    status: statusAll,
+    effort_lte: '',
+    effort_gte: '',
+  },
+};
+
+export function IssueFilterAccordion({ filter }:{filter:Filter}) {
+  return (
+    <Accordion>
+      <Accordion.Item eventKey="0">
+        <Accordion.Header>Filters</Accordion.Header>
+        <Accordion.Body>
+          <IssueFilter filter={filter} />
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
+  );
+}
+IssueFilterAccordion.defaultProps = {
+  filter: undefined,
+};

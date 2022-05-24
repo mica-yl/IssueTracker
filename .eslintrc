@@ -11,11 +11,9 @@ rules:
       json: always
       ts: ignore
       tsx: ignore
+  import/prefer-default-export: off
   prefer-arrow-callback: off # i prefer named functions — how to inforce that ?
-  no-underscore-dangle:
-    - error
-    - allow:
-        - _id
+  no-underscore-dangle: off
   no-unused-vars:
     - error
     - argsIgnorePattern: ^_
