@@ -6,3 +6,6 @@ static/bundle
 
 # generated code
 dist
+
+# db backup
+dump

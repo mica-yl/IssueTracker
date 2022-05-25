@@ -1,6 +1,6 @@
-const db = new Mongo().getDB("issuetracker");
+const db = db.getSiblingDB("issuetracker");
 
-db.issues.remove({});/// drop ?
+db.issues.deleteMany({});/// drop ?
 
 db.issues.insertMany([
     {
