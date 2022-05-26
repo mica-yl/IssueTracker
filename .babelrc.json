@@ -1,6 +1,6 @@
 {
   "ignore": [
-    "start_hook.js"
+    "server/start_hook.js"
   ],
   "sourceMaps": "inline",
   "presets": [

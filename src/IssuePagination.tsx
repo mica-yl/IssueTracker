@@ -1,6 +1,10 @@
 import React from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 
+export function divide(max, limit) {
+  return [];
+}
+
 export function IssuePagination(props) {
   const { max = 30, limit = 5 } = props;
 
