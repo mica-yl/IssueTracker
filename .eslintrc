@@ -2,13 +2,21 @@ extends:
   - airbnb
   - plugin:@typescript-eslint/recommended
   # - plugin:@typescript-eslint/recommended-requiring-type-checking
-overrides: 
-  - files:
-    - *.test.*
-  - plugins: [jest],
-  - extends: [plugin:jest/recommended],
-  - rules:  
-     jest/prefer-expect-assertions: off
+overrides:
+  - files: ["**.test.**"]
+    plugins: [jest]
+    extends: [plugin:jest/recommended]
+    rules:
+      jest/prefer-expect-assertions: off
+      import/no-extraneous-dependencies: off
+      # from jest-community/eslint-plugin-jest
+      jest/no-disabled-tests: warn
+      jest/no-focused-tests: error
+      jest/no-identical-title: error
+      jest/prefer-to-have-length: warn
+      jest/valid-expect: error
+      jest/no-standalone-expect:
+        - warn # doesn't work with test.[failling,...etc]
 rules:
   import/extensions:
     - error
@@ -31,21 +39,15 @@ rules:
     - extensions:
         - .jsx
         - .tsx
-  # jest from jest-community/eslint-plugin-jest
-  jest/no-disabled-tests: warn
-  jest/no-focused-tests: error
-  jest/no-identical-title: error
-  jest/prefer-to-have-length: warn
-  jest/valid-expect: error
+
 parser: "@typescript-eslint/parser"
 plugins:
   - "@typescript-eslint"
-  - "jest"
 settings:
   import/parsers:
     "@typescript-eslint/parser": [.ts, .tsx]
   import/resolver:
     typescript:
       alwaysTryTypes: true
-env: 
+env:
   jest/globals: true
