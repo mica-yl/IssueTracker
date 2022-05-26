@@ -12,6 +12,7 @@ import IssueTable from './IssueTable';
 import useAsk from './Ask';
 import useAlert from './AlertMsg';
 import useIssues, { APIContext } from './IssueAPI';
+import { IssuePagination } from './IssuePagination';
 
 /*
 function useIssues(i : Issue[] = []) {
@@ -68,7 +69,9 @@ export default function IssueList(props) {
         <Button type="button" onClick={addTestIssue}>Add !</Button>
       </Stack>
       <IssueTable issues={issues} onDelete={confirmDelete} />
-
+      <div className="d-flex justify-content-center">
+        <IssuePagination />
+      </div>
     </Stack>
   );
 }

@@ -46,10 +46,15 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
 
   app.use(express.static('static'));
 
-  app.get('/api/v1/issues', function listAPI(req, res) {
+  app.get('/api/v1/issues', async function listAPI(req, res) {
+    const issuesCollection = await dbConnection
+      .then((db) => db
+        .collection('issues'));
     const filter: Query = {};
     const {
-      status, effort_gte, effort_lte, _summary,
+      status, effort_gte, effort_lte,
+      _summary, _offset, _limit,
+
     } = req.query;
     if (status) filter.status = status;
     if (effort_lte || effort_gte) {
@@ -66,13 +71,22 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
       /*
       get list of issues
        */
-      dbConnection.then(get_issuesPromise(filter)).then((issues) => {
-        const metadata = { total_count: issues.length };
-        res.json({ _metadata: metadata, records: issues });
-      }).catch((err) => {
+      const offset = _offset ? parseInt(_offset, 10) : 0;
+      let limit = _limit ? parseInt(_limit, 10) : 20;
+      if (limit > 50) limit = 50;
+      try {
+        const issuesCursor = issuesCollection.find(filter);
+        const cursor = issuesCursor
+          .sort({ _id: 1 })
+          .skip(offset)
+          .limit(limit);
+        const totalCount = await issuesCollection.countDocuments(filter);
+        const issues = await cursor.toArray();
+        res.json({ _metadata: { totalCount }, records: issues });
+      } catch (err) {
         console.error(err);
         res.status(500).json({ message: `Internal Server Error : ${err}` });
-      });
+      }
     } else {
       /* summary
       */
