@@ -94,7 +94,7 @@ export function AppRoutes({ response }) {
       <Route index element={<DynamicNavigate response={response} to="issues" />} />
       <Route element={<App Components={Components} API={API} />}>
         <Route path="issues" element={<IssueList API={API} />} />
-        <Route path="issues/:id" element={<IssueEdit API={API} Components={Components} />} />
+        <Route path="issues/:id" element={<IssueEdit API={API}/>} />
         <Route path="reports" element={<IssueReport />} />
         <Route path="*" element={<NotFound />} />
       </Route>

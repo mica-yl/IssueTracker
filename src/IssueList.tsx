@@ -1,56 +1,40 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 
-import IssueAdd from './IssueAdd';
 import { IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
-import useAsk from './Ask';
-import useAlert from './AlertMsg';
-import useIssues, { APIContext } from './IssueAPI';
+import { API } from './IssueAPI';
 import { IssuePagination } from './IssuePagination';
 
-/*
-function useIssues(i : Issue[] = []) {
-  const [issues, setIssues] = useState(i);
-  return {
-    set: setIssues,
-    get get() { return issues; },
-    add(issue) {
-      if (issue) { // issue shouldn't be null or undefined.
-        setIssues((old) => old.concat(issue));
-      }
-    },
-    addTestIssue() {
-      this.add({
-        _id: '05896dgfhls56s5',
-        status: 'New',
-        owner: 'Pieta',
-        created: new Date(),
-        title: 'Completion date should be optional !',
-      });
-    },
+import { mergeSearchParams } from './react-router-hooks';
+import { Selection } from './StatusFilter';
 
-  };
+function uniqueMergeReducer(state:string[], action:string[]) {
+  const newKeys = action
+    .filter((k) => !state.includes(k));
+  return state.concat(newKeys);
 }
-*/
-// export const APIContext = use
 
-// eslint-disable-next-line no-unused-vars
-export default function IssueList(props) {
-  const { Ask, ask } = useAsk();
-  const { AlertMsg, alertAsync } = useAlert();
+export default function IssueList(props:{API:API}) {
   const { API } = props;
   const {
-    addTestIssue, confirmDelete, createIssue, fetchData, issues, searchParams,
+    addTestIssue, confirmDelete, fetchData,
+    issues, searchParams, maxIssues, newSearchParams, setSearchParams,
   // } = useIssues(alertAsync, ask);
   } = API;
+  /**
+   * needs to be automated by limiting search parameters use.
+   */
+  const searchKeys = ['owner', 'status', 'effort_le', 'effort_gt'];
+  const { dataFetcher, issuesPerPage } = fetchData(searchKeys);
+  const maxPages = Math.ceil(maxIssues / issuesPerPage);
   useEffect(
-    fetchData,
+    dataFetcher,
     [searchParams.toString()],
   );// run when search changes
 
@@ -59,18 +43,30 @@ export default function IssueList(props) {
   return (
     <Stack gap={3}>
       <Stack>
-        <IssueFilterAccordion filters={filters} />
+        <IssueFilterAccordion
+          filters={filters}
+        />
       </Stack>
       <Stack direction="horizontal" gap={3}>
-        <Button type="button" onClick={fetchData}>
+        <Button type="button" onClick={dataFetcher}>
           <ArrowClockwise />
           Refresh !
         </Button>
         <Button type="button" onClick={addTestIssue}>Add !</Button>
       </Stack>
       <IssueTable issues={issues} onDelete={confirmDelete} />
+      <Selection
+        defaultChoice={searchParams.get('issuesPerPage')}
+        Choices={['10', '15', '20', maxIssues.toString()]}
+        onChange={(e) => setSearchParams(newSearchParams({ issuesPerPage: e.target.value }))}
+      />
       <div className="d-flex justify-content-center">
-        <IssuePagination />
+        <IssuePagination
+          current={parseInt(searchParams.get('page'), 10) || 1}
+          max={maxPages}
+          interval={10}
+          onRedirect={(page:number) => `?${newSearchParams({ page: page.toString() }).toString()}`}
+        />
       </div>
     </Stack>
   );

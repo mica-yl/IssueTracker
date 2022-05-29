@@ -57,6 +57,7 @@
     "eslint-import-resolver-typescript": "^2.7.0",
     "eslint-plugin-jest": "^26.2.2",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "fast-check": "^3.0.0",
     "fs-monkey": "^1.0.3",
     "jest": "^28.1.0",
     "memfs": "^3.4.1",

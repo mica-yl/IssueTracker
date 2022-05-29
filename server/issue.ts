@@ -13,6 +13,14 @@ export type Issue<X> = {
   title: string,
 };
 
+/**
+ * this type is out of sync with the implementation.
+ */
+export type IssuesJsonResponse = {
+  _metadata:{totalCount:number},
+  records: Issue<string>[]
+};
+
 const issueFieldType = {
   // _id: {required:true,},
   status: { required: true },

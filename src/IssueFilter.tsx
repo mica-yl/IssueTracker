@@ -68,6 +68,7 @@ function useFilter(initFilter:Filter) {
   }
   return {
     filter,
+    properties,
     /**
      * returns true if current filter is a subset of aFilter
      * @param aFilter
@@ -139,15 +140,17 @@ const isNumber = (s:string) => (s !== '') && !!(s.match(/^\d*$/));
 const isValidStatus = (s) => statusOptions.includes(s);
 const statusAll = '[ All ]';
 
-export function IssueFilter(props:{filter?:Filter}) {
-  const { filter: initFilter } = props;
+export function IssueFilter(props:IssueFilterProps) {
+  const { filter: initFilter, callWithSearchKeys } = props;
   const {
-    useProperty, applyFilter, clearFilter, resetFilter, changed,
+    useProperty, applyFilter, clearFilter, resetFilter, changed, properties,
   } = useFilter(initFilter);
   // const [changed, setChanged] = useState(false);
   const { dispatch: dispatchStatus, status } = useProperty('status', isValidStatus);
   const { dispatch: dispatchEffortL, effort_lte } = useProperty('effort_lte', isNumber);
   const { dispatch: dispatchEffortG, effort_gte } = useProperty('effort_gte', isNumber);
+
+  callWithSearchKeys(properties);
 
   useEffect(resetFilter, []);// use once at loading
   const col = {
@@ -190,21 +193,28 @@ export function IssueFilter(props:{filter?:Filter}) {
     </Row>
   );
 }
+
+type IssueFilterProps = {
+  filter?:Filter,
+  callWithSearchKeys?:(i:string[])=>void
+};
+
 IssueFilter.defaultProps = {
   filter: {
     status: statusAll,
     effort_lte: '',
     effort_gte: '',
   },
+  callWithSearchKeys: () => {},
 };
 
-export function IssueFilterAccordion({ filter }:{filter:Filter}) {
+export function IssueFilterAccordion({ filter, callWithSearchKeys }:IssueFilterProps) {
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
         <Accordion.Header>Filters</Accordion.Header>
         <Accordion.Body>
-          <IssueFilter filter={filter} />
+          <IssueFilter filter={filter} callWithSearchKeys={callWithSearchKeys} />
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>

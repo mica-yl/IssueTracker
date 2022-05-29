@@ -2,10 +2,11 @@ import React, { createContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import fetch from 'isomorphic-fetch/';
 
-import { convertIssue } from '../server/issue';
+import { convertIssue, IssuesJsonResponse } from '../server/issue';
 import useAlert from './AlertMsg';
 import useAsk from './Ask';
 import { Issue } from './Issue';
+import { useSearchParamsUpdate } from './react-router-hooks';
 
 const prettyJson = (obj) => JSON.stringify(obj, null, ' ');
 
@@ -33,7 +34,7 @@ export function deleteIssue(issueId) {
   });
 }
 
-async function getOneIssue(id) {
+export async function getOneIssue(id) {
   return fetch(
     `/api/v1/issues/${id}`,
     { method: 'GET' },
@@ -54,7 +55,7 @@ async function getOneIssue(id) {
   });
 }
 
-function updateOneIssue(id, sentIssue) {
+export function updateOneIssue(id, sentIssue) {
   return new Promise((resolve, reject) => {
     fetch(
       `/api/v1/issues/${id}`,
@@ -80,11 +81,37 @@ export default function useIssues(
   ask:(question:string)=> Promise<boolean>,
 ) {
   const [issues, setIssues] = useState([]);
-  const [searchParams] = useSearchParams();
+  const [maxIssues, setMaxIssues] = useState(0);
+  const { searchParams, newSearchParams, setSearchParams } = useSearchParamsUpdate();
 
-  function fetchData() {
-    fetch(
-      `/api/v1/issues?${searchParams}`,
+  function fetchData(transparentKeys:string[]) {
+    /**
+     * request parameter :
+     */
+    const requestParams = new URLSearchParams(searchParams);
+    const issuesPerPage = requestParams.has('issuesPerPage')
+      ? parseInt(requestParams.get('issuesPerPage'), 10)
+      : 10;
+    const offset = (() => {
+      if (requestParams.has('page')) {
+        const page = parseInt(requestParams.get('page'), 10);
+
+        return ((page - 1) * issuesPerPage);
+      }
+      return 10;
+    })();
+
+    // clean all keys
+    [...requestParams.keys()]
+      .filter((k) => !transparentKeys.includes(k))
+      .forEach((k) => requestParams.delete(k));
+
+    // set meta keys
+    requestParams.set('_limit', issuesPerPage.toString());
+    requestParams.set('_offset', offset.toString());
+
+    const dataFetcher = () => fetch(
+      `/api/v1/issues?${requestParams}`,
       { method: 'GET' },
     ).then((response) => {
       const json = response.json();
@@ -94,11 +121,14 @@ export default function useIssues(
         return json.then((err) => alertAsync(`Falied to fetch issues ${err.message}`));
       }
       throw response;
-    }).then((remote_data) => {
-      const new_data = remote_data.records.map(convertIssue);
-      setIssues(new_data);
+    }).then((remoteData:IssuesJsonResponse) => {
+      const convertedIssues = remoteData.records.map(convertIssue);
+      setIssues(convertedIssues);
+      setMaxIssues(remoteData._metadata.totalCount);
     })
       .catch((err) => console.error(err));
+
+    return { dataFetcher, issuesPerPage };
   }
 
   function addIssue(issue) {
@@ -163,11 +193,14 @@ export default function useIssues(
     getOneIssue,
     updateOneIssue,
     issues,
+    maxIssues,
     createIssue,
     addTestIssue,
     confirmDelete,
     deleteIssue,
     searchParams,
+    newSearchParams,
+    setSearchParams,
   };
 }
 // useAPI
@@ -185,3 +218,5 @@ export function useAPI() {
 }
 
 export type APIAndComponents = ReturnType< (typeof useAPI)>;
+export type API = ReturnType< (typeof useAPI)> ['API'];
+export type Components = ReturnType< (typeof useAPI)> ['Components'];

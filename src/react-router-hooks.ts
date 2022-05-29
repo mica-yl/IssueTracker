@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom';
  * @param {Object} obj
  * @returns {URLSearchParams} unique
  */
-export function mergeSearchParams(url, obj) {
+export function mergeSearchParams(url:URLSearchParams, obj:Record<string, string>) {
   return new URLSearchParams(
     {
       ...Object.fromEntries(url.entries()),
@@ -17,6 +17,7 @@ export function mergeSearchParams(url, obj) {
 
 export function useSearchParamsUpdate() {
   const [searchParams, setSearchParams] = useSearchParams();
+  
   return {
     searchParams,
     setSearchParams,

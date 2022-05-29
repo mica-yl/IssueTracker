@@ -3,10 +3,15 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
-export function Selection(props) {
+type SelectionProps= {
+  defaultChoice:string,
+  Choices:string[],
+  onChange:React.ChangeEventHandler<HTMLSelectElement>, }
+
+export function Selection(props:SelectionProps) {
   const { defaultChoice, onChange, Choices } = props;
   return (
-    <Form.Select value={defaultChoice} onChange={onChange}>
+    <Form.Select value={defaultChoice || Choices[0]} onChange={onChange}>
       {Choices.map((aChoice) => (
         <option key={aChoice} value={aChoice}>{aChoice}</option>
       ))}

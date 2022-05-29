@@ -13,7 +13,7 @@ import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from './Input';
 import { Selection } from './StatusFilter';
 import { Status, Issue, convertIssue } from '../server/issue';
-import { APIAndComponents } from './IssueAPI';
+import { API, APIAndComponents } from './IssueAPI';
 
 const statusOptions = [...Status];
 
@@ -100,7 +100,7 @@ function getHandler(state, setState) {
   };
 }
 
-export default function IssueEdit(props:APIAndComponents) {
+export default function IssueEdit(props:{API:API}) {
   const { API: { updateOneIssue, getOneIssue, confirmDelete } } = props;
   const { id } = useParams();
   const {
