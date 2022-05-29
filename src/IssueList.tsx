@@ -13,6 +13,7 @@ import { IssuePagination } from './IssuePagination';
 
 import { mergeSearchParams } from './react-router-hooks';
 import { Selection } from './StatusFilter';
+import IssueSearch from './IssueSearch';
 
 function uniqueMergeReducer(state:string[], action:string[]) {
   const newKeys = action
@@ -30,7 +31,7 @@ export default function IssueList(props:{API:API}) {
   /**
    * needs to be automated by limiting search parameters use.
    */
-  const searchKeys = ['owner', 'status', 'effort_le', 'effort_gt'];
+  const searchKeys = ['owner', 'status', 'effort_le', 'effort_gt', 'search'];
   const { dataFetcher, issuesPerPage } = fetchData(searchKeys);
   const maxPages = Math.ceil(maxIssues / issuesPerPage);
   useEffect(
@@ -53,12 +54,22 @@ export default function IssueList(props:{API:API}) {
           Refresh !
         </Button>
         <Button type="button" onClick={addTestIssue}>Add !</Button>
+        <IssueSearch
+          initSearch={searchParams.get('search') || ''}
+          onSearch={(search) => setSearchParams(newSearchParams({ search, page: 1 }))}
+          onClear={() => {
+            searchParams.delete('search');
+            setSearchParams(searchParams);
+          }}
+        />
       </Stack>
       <IssueTable issues={issues} onDelete={confirmDelete} />
       <Selection
         defaultChoice={searchParams.get('issuesPerPage')}
         Choices={['10', '15', '20', maxIssues.toString()]}
-        onChange={(e) => setSearchParams(newSearchParams({ issuesPerPage: e.target.value }))}
+        onChange={(e) => setSearchParams(newSearchParams(
+          { issuesPerPage: e.target.value, page: 1 },
+        ))}
       />
       <div className="d-flex justify-content-center">
         <IssuePagination

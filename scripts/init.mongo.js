@@ -19,5 +19,6 @@ db.issues.insertMany([
 
 ]);
 
-[{ status: 1 }, { owner: 1 }, { created: 1 }].forEach(obj =>
+const indexes = [{ status: 1 }, { owner: 1 }, { created: 1 }, { title: 'text' }];
+indexes.forEach(obj =>
     db.issues.createIndex(obj));

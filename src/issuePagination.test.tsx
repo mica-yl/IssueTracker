@@ -31,10 +31,10 @@ type testDrivideArgs = {
  */
 function testDivide(callBack:(context:testDrivideArgs)=> unkown) {
   fc.assert(fc.property(
-    fc.integer({ min: 2 }),
+    fc.integer({ min: 1 }),
     (PagesNumber) => {
       fc.assert(fc.property(
-        fc.integer({ min: 2, max: PagesNumber }),
+        fc.integer({ min: 1, max: PagesNumber }),
         fc.integer({ min: 1, max: PagesNumber }),
         (visiblePages, current) => {
           const [start, end] = divide(current, PagesNumber, visiblePages);

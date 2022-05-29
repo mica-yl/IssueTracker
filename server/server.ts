@@ -53,6 +53,7 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
     const filter: Query = {};
     const {
       status, effort_gte, effort_lte,
+      search,
       _summary, _offset, _limit,
 
     } = req.query;
@@ -65,6 +66,9 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
       if (effort_gte) {
         filter.effort.$gte = parseInt(effort_gte, 10);
       }
+    }
+    if (search) {
+      filter.$text = { $search: search };
     }
 
     if (_summary === undefined) {

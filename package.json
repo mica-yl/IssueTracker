@@ -49,6 +49,7 @@
     "@babel/register": "^7.17.7",
     "@types/core-js": "^2.5.5",
     "@types/jest": "^27.5.1",
+    "@types/react-bootstrap": "^0.32.29",
     "@types/webpack-node-externals": "^2.5.3",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
