@@ -17,6 +17,12 @@ import { useSearchParamsUpdate } from './react-router-hooks';
 import StatusFilter from './StatusFilter';
 import { Status } from '../server/issue';
 
+export type Filter= {
+status:string,
+// effort:{max:string, min:string},
+effort_lte:string, effort_gte:string,
+};
+
 function EffortFilter(props) {
   const { from: [from, handleFrom], to: [to, handleTo] } = props;
   return (
@@ -35,7 +41,6 @@ function filterReducer(state, action) {
   const newState = { ...state, ...action };
   return newState;
 }
-type Filter= Record<string, string>;
 type Pred<X> = (i:X)=>boolean;
 function equalFilterProp(
   prop:string,
@@ -55,12 +60,12 @@ function equalFilterProp(
   return false;
 }
 
-function useFilter(initFilter:Filter) {
+function useFilter(initFilter:Filter, currentFilter:Filter, onApply:OnApply) {
   const [filter, dispatchFilter] : [Filter, Dispatch<unknown>] = useReducer(
     filterReducer,
     initFilter,
   );
-  const { reduceSearchParams, searchParams } = useSearchParamsUpdate();
+  // const { reduceSearchParams, searchParams } = useSearchParamsUpdate();
   const properties:[string, Pred<string> ][] = [];
   function equalFilterAsSubset(aFilter:Filter) {
     return (properties
@@ -75,7 +80,7 @@ function useFilter(initFilter:Filter) {
      */
     equalFilterAsSubset,
     changed() {
-      const searchParamsObject = Object.fromEntries(searchParams.entries());
+      const searchParamsObject = currentFilter;
       return !equalFilterAsSubset(searchParamsObject);
       // return !(properties
       //   .every(([p, isValid]) => equalFilterProp(p, isValid, filter, aFilter)));
@@ -102,21 +107,22 @@ function useFilter(initFilter:Filter) {
       };
     },
     applyFilter() {
-      reduceSearchParams(function apply(u) {
-        properties.forEach(([p, isValid]) => {
-          if (isValid(filter[p])) {
-            u.set(p, filter[p]);
-          } else {
-            u.delete(p);
-          }
-        });
-        return u;
+      const u = {};
+
+      properties.forEach(([p, isValid]) => {
+        if (isValid(filter[p])) {
+          u[p] = filter[p];
+        } else {
+          u[p] = null;
+        }
       });
+
+      setTimeout(() => onApply(u));
     },
     resetFilter() {
       // dispatchFilter(initFilter);
       const oldFilter:Filter = Object.fromEntries(properties
-        .map(([p, _]) => ([p, searchParams.has(p) ? searchParams.get(p) : initFilter[p]])));
+        .map(([p, _]) => ([p, (p in currentFilter) ? currentFilter[p] : initFilter[p]])));
         // .filter(([_, v]) => v !== undefined));
 
       dispatchFilter(oldFilter);
@@ -124,6 +130,7 @@ function useFilter(initFilter:Filter) {
     clearFilter() {
       dispatchFilter(initFilter);
     },
+    /*
     removeFilters() {
       reduceSearchParams(function clear(u) {
         properties.forEach(([p, _isValid]) => {
@@ -131,7 +138,7 @@ function useFilter(initFilter:Filter) {
         });
         return u;
       });
-    },
+    }, */
   };
 }
 
@@ -140,17 +147,17 @@ const isNumber = (s:string) => (s !== '') && !!(s.match(/^\d*$/));
 const isValidStatus = (s) => statusOptions.includes(s);
 const statusAll = '[ All ]';
 
+// TODO simplify IssueFilter : decouple search parms
+// eslint-disable-next-line no-use-before-define
 export function IssueFilter(props:IssueFilterProps) {
-  const { filter: initFilter, callWithSearchKeys } = props;
+  const { initFilter, currentFilter, onApply } = props;
   const {
-    useProperty, applyFilter, clearFilter, resetFilter, changed, properties,
-  } = useFilter(initFilter);
+    useProperty, applyFilter, clearFilter, resetFilter, changed,
+  } = useFilter(initFilter, currentFilter, onApply);
   // const [changed, setChanged] = useState(false);
   const { dispatch: dispatchStatus, status } = useProperty('status', isValidStatus);
   const { dispatch: dispatchEffortL, effort_lte } = useProperty('effort_lte', isNumber);
   const { dispatch: dispatchEffortG, effort_gte } = useProperty('effort_gte', isNumber);
-
-  callWithSearchKeys(properties);
 
   useEffect(resetFilter, []);// use once at loading
   const col = {
@@ -194,32 +201,32 @@ export function IssueFilter(props:IssueFilterProps) {
   );
 }
 
+type OnApply = (newFilter:Filter)=> void;
+
 type IssueFilterProps = {
-  filter?:Filter,
-  callWithSearchKeys?:(i:string[])=>void
+  initFilter?:Filter,
+  currentFilter:Filter,
+  onApply:OnApply
 };
 
 IssueFilter.defaultProps = {
-  filter: {
+  initFilter: {
     status: statusAll,
     effort_lte: '',
     effort_gte: '',
   },
-  callWithSearchKeys: () => {},
 };
 
-export function IssueFilterAccordion({ filter, callWithSearchKeys }:IssueFilterProps) {
+export function IssueFilterAccordion(props:IssueFilterProps) {
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
         <Accordion.Header>Filters</Accordion.Header>
         <Accordion.Body>
-          <IssueFilter filter={filter} callWithSearchKeys={callWithSearchKeys} />
+          <IssueFilter {...props} />
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>
   );
 }
-IssueFilterAccordion.defaultProps = {
-  filter: undefined,
-};
+IssueFilterAccordion.defaultProps = IssueFilter.defaultProps;

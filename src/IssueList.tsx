@@ -6,7 +6,7 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 
-import { IssueFilterAccordion } from './IssueFilter';
+import { Filter, IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
 import { API } from './IssueAPI';
 import { IssuePagination } from './IssuePagination';
@@ -26,26 +26,45 @@ export default function IssueList(props:{API:API}) {
   const {
     addTestIssue, confirmDelete, fetchData,
     issues, searchParams, maxIssues, newSearchParams, setSearchParams,
-  // } = useIssues(alertAsync, ask);
   } = API;
-  /**
-   * needs to be automated by limiting search parameters use.
-   */
-  const searchKeys = ['owner', 'status', 'effort_le', 'effort_gt', 'search'];
+
+  // needs to be automated by limiting search parameters use.
+  const searchKeys = ['owner', 'status', 'effort_lte', 'effort_gte', 'search'];
   const { dataFetcher, issuesPerPage } = fetchData(searchKeys);
   const maxPages = Math.ceil(maxIssues / issuesPerPage);
+
+  const initFilter = { status: '', effort_lte: '', effort_gte: '' };
+  const currentFilter = {
+    status: searchParams.get('status') || '',
+    effort_lte: searchParams.get('effort_lte') || '',
+    effort_gte: searchParams.get('effort_gte') || '',
+  };
+  function onApply(newFilter:Filter) {
+    const Params = new URLSearchParams(searchParams);
+    Object.entries(newFilter)
+      .forEach(([key, value]) => {
+        if (value === null) {
+          Params.delete(key);
+        } else {
+          Params.set(key, value);
+        }
+      });
+    Params.set('page', '1');
+    setSearchParams(Params);
+  }
+
   useEffect(
     dataFetcher,
     [searchParams.toString()],
   );// run when search changes
 
-  const filters = { status: [...new Set(issues.map((issue) => issue.status))] };
-
   return (
     <Stack gap={3}>
       <Stack>
         <IssueFilterAccordion
-          filters={filters}
+          initFilter={initFilter}
+          currentFilter={currentFilter}
+          onApply={onApply}
         />
       </Stack>
       <Stack direction="horizontal" gap={3}>
