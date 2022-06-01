@@ -1,21 +1,18 @@
-import { yieldExpression } from '@babel/types';
 import React from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 import { LinkContainer } from 'react-router-bootstrap';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
 export function divide(current:number, max:number, interval:number) {
-  const d = Math.floor(interval / 2);
+  const safeInterval = interval > max ? max : interval;
+  const d = Math.floor(safeInterval / 2);
+  const isSafeIntervalEven = (safeInterval % 2 === 0) ? 1 : 0;
   if (current <= d) {
-    return [1, interval];
+    return [1, safeInterval];
   } if (current >= max - d) {
-    return max === interval ? [1, max] : [max - interval, max];
-  } if (interval % 2 === 1) {
-    // odd interval
-    return [current - d, current + d];
+    return [max - safeInterval + 1, max];
   }
-  // even interval
-  return [current - d, current + d - 1];
+  return [current - d, current + d - isSafeIntervalEven];
 }
 
 type IssuePaginationProps = {
@@ -39,8 +36,17 @@ type IssuePaginationProps = {
    */
   onRedirect:(page:number)=> string
 };
+/*
+export function range(start:number, end:number, step? = 1) {
+  const result = [];
+  for (let i = start; i <= end; i += step) {
+    result.push(i);
+  }
+  return result;
+}
+*/
 
-function* count(start:number, end:number) {
+export function* count(start:number, end:number) {
   for (let i = start; i <= end; i++) {
     yield i;
   }
@@ -62,14 +68,16 @@ export function IssuePagination(props:IssuePaginationProps) {
         <Pagination.Prev disabled={current - 1 <= 0} />
       </LinkContainer>
 
-      {/* <Pagination.Item>{1}</Pagination.Item> */}
-      {/* <Pagination.Ellipsis /> */}
+      <Pagination.Ellipsis disabled hidden={!(start > 1)} />
       {Array.from(count(start, end))
         .map((cur) => (
           <LinkContainer key={cur} to={onRedirect(cur)}>
             <Pagination.Item active={cur === current}>{cur}</Pagination.Item>
           </LinkContainer>
         ))}
+
+      <Pagination.Ellipsis disabled hidden={!(end < max)} />
+
       <LinkContainer to={onRedirect(current + 1)}>
         <Pagination.Next disabled={current + 1 > max} />
       </LinkContainer>
