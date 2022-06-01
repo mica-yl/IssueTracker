@@ -24,7 +24,7 @@ function uniqueMergeReducer(state:string[], action:string[]) {
 export default function IssueList(props:{API:API}) {
   const { API } = props;
   const {
-    addTestIssue, confirmDelete, fetchData,
+    confirmDelete, fetchData,
     issues, searchParams, maxIssues, newSearchParams, setSearchParams,
   } = API;
 
@@ -52,7 +52,6 @@ export default function IssueList(props:{API:API}) {
     Params.set('page', '1');
     setSearchParams(Params);
   }
-
   useEffect(
     dataFetcher,
     [searchParams.toString()],
@@ -72,13 +71,13 @@ export default function IssueList(props:{API:API}) {
           <ArrowClockwise />
           Refresh !
         </Button>
-        <Button type="button" onClick={addTestIssue}>Add !</Button>
         <IssueSearch
           initSearch={searchParams.get('search') || ''}
-          onSearch={(search) => setSearchParams(newSearchParams({ search, page: 1 }))}
-          onClear={() => {
-            searchParams.delete('search');
-            setSearchParams(searchParams);
+          gotoSearch={(search) => `?${newSearchParams((search !== '') ? { search, page: 1 } : {}).toString()}`}
+          gotoClear={() => {
+            const Params = new URLSearchParams(searchParams);
+            Params.delete('search');
+            return `?${Params.toString()}`;
           }}
         />
       </Stack>
@@ -95,7 +94,7 @@ export default function IssueList(props:{API:API}) {
           current={parseInt(searchParams.get('page'), 10) || 1}
           max={maxPages}
           interval={10}
-          onRedirect={(page:number) => `?${newSearchParams({ page: page.toString() }).toString()}`}
+          gotoRedirect={(page:number) => `?${newSearchParams({ page: page.toString() }).toString()}`}
         />
       </div>
     </Stack>

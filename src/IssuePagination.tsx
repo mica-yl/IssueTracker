@@ -29,12 +29,12 @@ type IssuePaginationProps = {
    */
   interval:number,
   /**
-   * a callback takes
+   *
    * @param page - page number
    * @default uses search parameter `page`
    * @returns url using the page number
    */
-  onRedirect:(page:number)=> string
+  gotoRedirect:(page:number)=> string
 };
 /*
 export function range(start:number, end:number, step? = 1) {
@@ -47,6 +47,7 @@ export function range(start:number, end:number, step? = 1) {
 */
 
 export function* count(start:number, end:number) {
+  // eslint-disable-next-line no-plusplus
   for (let i = start; i <= end; i++) {
     yield i;
   }
@@ -56,32 +57,32 @@ export function IssuePagination(props:IssuePaginationProps) {
   const { newSearchParams } = useSearchParamsUpdate();
   const {
     current = 1, max = 30, interval = 10,
-    onRedirect = (page) => `?${newSearchParams({ page }).toString()}`,
+    gotoRedirect = (page) => `?${newSearchParams({ page }).toString()}`,
   } = props;
   const [start, end] = divide(current, max, interval);
   return (
     <Pagination>
-      <LinkContainer to={onRedirect(1)}>
+      <LinkContainer to={gotoRedirect(1)}>
         <Pagination.First disabled={current === 1} />
       </LinkContainer>
-      <LinkContainer to={onRedirect(current - 1)}>
+      <LinkContainer to={gotoRedirect(current - 1)}>
         <Pagination.Prev disabled={current - 1 <= 0} />
       </LinkContainer>
 
       <Pagination.Ellipsis disabled hidden={!(start > 1)} />
       {Array.from(count(start, end))
         .map((cur) => (
-          <LinkContainer key={cur} to={onRedirect(cur)}>
+          <LinkContainer key={cur} to={gotoRedirect(cur)}>
             <Pagination.Item active={cur === current}>{cur}</Pagination.Item>
           </LinkContainer>
         ))}
 
       <Pagination.Ellipsis disabled hidden={!(end < max)} />
 
-      <LinkContainer to={onRedirect(current + 1)}>
+      <LinkContainer to={gotoRedirect(current + 1)}>
         <Pagination.Next disabled={current + 1 > max} />
       </LinkContainer>
-      <LinkContainer to={onRedirect(max)}>
+      <LinkContainer to={gotoRedirect(max)}>
         <Pagination.Last disabled={current === max} />
       </LinkContainer>
     </Pagination>

@@ -1,15 +1,16 @@
 import React, { useState, ChangeEvent, ChangeEventHandler } from 'react';
 import { Button, FormControl, Stack } from 'react-bootstrap';
 import { Search } from 'react-bootstrap-icons';
+import { LinkContainer } from 'react-router-bootstrap';
 
 export type IssueSearchProps = {
-  onSearch: (searchText:string)=>void,
-  onClear: ()=>void,
+  gotoSearch: (searchText:string)=>string,
+  gotoClear: ()=>string,
   initSearch?:string,
 };
 
 export default function IssueSearch(props:IssueSearchProps) {
-  const { onSearch, onClear, initSearch } = props;
+  const { gotoSearch, gotoClear, initSearch } = props;
   const [searchText, setSearchText] = useState(initSearch);
   const onChange:ChangeEventHandler<HTMLInputElement> = (event) => {
     setSearchText(event.target.value);
@@ -21,8 +22,12 @@ export default function IssueSearch(props:IssueSearchProps) {
         value={searchText}
         onChange={onChange}
       />
-      <Button onClick={() => onSearch(searchText)}><Search /></Button>
-      <Button onClick={() => (onClear(), setSearchText(''))}>clear</Button>
+      <LinkContainer to={gotoSearch(searchText)}>
+        <Button><Search /></Button>
+      </LinkContainer>
+      <LinkContainer to={gotoClear()}>
+        <Button onClick={() => setSearchText('')}>clear</Button>
+      </LinkContainer>
     </Stack>
   );
 }
