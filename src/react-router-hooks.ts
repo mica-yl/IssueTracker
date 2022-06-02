@@ -14,10 +14,24 @@ export function mergeSearchParams(url:URLSearchParams, obj:Record<string, string
     },
   );
 }
+export function hashSearchParams(searchParams:URLSearchParams, filter:{allowedKeys:string[]|'all'}) {
+  const params = new URLSearchParams(searchParams);
+  const { allowedKeys } = filter;
+  if (allowedKeys !== 'all') {
+    [...params.keys()]
+      .filter((k) => !(allowedKeys.includes(k)))
+      .forEach(
+        (key) => {
+          params.delete(key);
+        },
+      );
+  }
+  return params.toString();
+}
 
 export function useSearchParamsUpdate() {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   return {
     searchParams,
     setSearchParams,

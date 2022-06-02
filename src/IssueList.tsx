@@ -11,7 +11,7 @@ import IssueTable from './IssueTable';
 import { API } from './IssueAPI';
 import { IssuePagination } from './IssuePagination';
 
-import { mergeSearchParams } from './react-router-hooks';
+import { hashSearchParams, mergeSearchParams } from './react-router-hooks';
 import { Selection } from './StatusFilter';
 import IssueSearch from './IssueSearch';
 
@@ -30,6 +30,7 @@ export default function IssueList(props:{API:API}) {
 
   // needs to be automated by limiting search parameters use.
   const searchKeys = ['owner', 'status', 'effort_lte', 'effort_gte', 'search'];
+  const allowedKeys = searchKeys.concat('page');
   const { dataFetcher, issuesPerPage } = fetchData(searchKeys);
   const maxPages = Math.ceil(maxIssues / issuesPerPage);
 
@@ -54,7 +55,7 @@ export default function IssueList(props:{API:API}) {
   }
   useEffect(
     dataFetcher,
-    [searchParams.toString()],
+    [hashSearchParams(searchParams, { allowedKeys })],
   );// run when search changes
 
   return (
