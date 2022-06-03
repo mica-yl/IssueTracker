@@ -11,15 +11,9 @@ import IssueTable from './IssueTable';
 import { API } from './IssueAPI';
 import { IssuePagination } from './IssuePagination';
 
-import { hashSearchParams, mergeSearchParams } from './react-router-hooks';
+import { hashSearchParams } from './react-router-hooks';
 import { Selection } from './StatusFilter';
 import IssueSearch from './IssueSearch';
-
-function uniqueMergeReducer(state:string[], action:string[]) {
-  const newKeys = action
-    .filter((k) => !state.includes(k));
-  return state.concat(newKeys);
-}
 
 export default function IssueList(props:{API:API}) {
   const { API } = props;
@@ -31,7 +25,7 @@ export default function IssueList(props:{API:API}) {
   // needs to be automated by limiting search parameters use.
   const searchKeys = ['owner', 'status', 'effort_lte', 'effort_gte', 'search'];
   const allowedKeys = searchKeys.concat('page');
-  const { dataFetcher, issuesPerPage } = fetchData(searchKeys);
+  const { dataFetcher, issuesPerPage, dataLoader } = fetchData(searchKeys);
   const maxPages = Math.ceil(maxIssues / issuesPerPage);
 
   const initFilter = { status: '', effort_lte: '', effort_gte: '' };
@@ -54,7 +48,7 @@ export default function IssueList(props:{API:API}) {
     setSearchParams(Params);
   }
   useEffect(
-    dataFetcher,
+    dataLoader(dataFetcher),
     [hashSearchParams(searchParams, { allowedKeys })],
   );// run when search changes
 
@@ -68,11 +62,12 @@ export default function IssueList(props:{API:API}) {
         />
       </Stack>
       <Stack direction="horizontal" gap={3}>
-        <Button type="button" onClick={dataFetcher}>
+        <Button type="button" onClick={dataLoader(dataFetcher)}>
           <ArrowClockwise />
           Refresh !
         </Button>
         <IssueSearch
+          loadIssues={dataFetcher}
           initSearch={searchParams.get('search') || ''}
           gotoSearch={(search) => `?${newSearchParams((search !== '') ? { search, page: 1 } : {}).toString()}`}
           gotoClear={() => {

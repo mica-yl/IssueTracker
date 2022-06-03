@@ -98,7 +98,7 @@ export default function useIssues(
 
         return ((page - 1) * issuesPerPage);
       }
-      return 10;
+      return 0;
     })();
 
     // clean all keys
@@ -110,25 +110,36 @@ export default function useIssues(
     requestParams.set('_limit', issuesPerPage.toString());
     requestParams.set('_offset', offset.toString());
 
-    const dataFetcher = () => fetch(
-      `/api/v1/issues?${requestParams}`,
-      { method: 'GET' },
-    ).then((response) => {
-      const json = response.json();
-      if (response.ok) {
-        return json;
-      } if (response.status === 500) {
-        return json.then((err) => alertAsync(`Falied to fetch issues ${err.message}`));
+    const dataFetcher = (search?:string) => {
+      if (typeof search === 'string') {
+        requestParams.set('search', search);
       }
-      throw response;
-    }).then((remoteData:IssuesJsonResponse) => {
-      const convertedIssues = remoteData.records.map(convertIssue);
-      setIssues(convertedIssues);
-      setMaxIssues(remoteData._metadata.totalCount);
-    })
+      return fetch(
+        `/api/v1/issues?${requestParams}`,
+        { method: 'GET' },
+      ).then((response) => {
+        const json = response.json();
+        if (response.ok) {
+          return json;
+        } if (response.status === 500) {
+          return json.then((err) => alertAsync(`Falied to fetch issues ${err.message}`));
+        }
+        throw response;
+      }).then((remoteData:IssuesJsonResponse) => {
+        const { records, _metadata: { totalCount } } = remoteData;
+        const convertedIssues = records.map(convertIssue);
+        return { issues: convertedIssues, totalCount };
+      });
+    };
+
+    const dataLoader = (dataFetcherCallBack:(typeof dataFetcher)) => () => dataFetcherCallBack()
+      .then(({ issues: convertedIssues, totalCount }) => {
+        setIssues(convertedIssues);
+        setMaxIssues(totalCount);
+      })
       .catch((err) => console.error(err));
 
-    return { dataFetcher, issuesPerPage };
+    return { dataFetcher, issuesPerPage, dataLoader };
   }
 
   function addIssue(issue) {
