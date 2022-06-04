@@ -2,8 +2,8 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import Router from 'express';
 
-import { DynamicallyRouteApp } from '../src/DynamicallyRouteApp';
-import { AppRoutes } from '../src/App';
+import { DynamicallyRouteApp } from '#client/DynamicallyRouteApp';
+import { AppRoutes } from '#client/App/App';
 import template from './template.js';
 
 const renderedPageRouter = Router();

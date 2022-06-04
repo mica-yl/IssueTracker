@@ -3,6 +3,9 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+
+const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 
 module.exports = {
   mode: 'development',
@@ -35,6 +38,7 @@ module.exports = {
   plugins: [new webpack.HotModuleReplacementPlugin()],
   devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    extensions,
+    plugins: [new TsconfigPathsPlugin({ extensions })],
   },
 };

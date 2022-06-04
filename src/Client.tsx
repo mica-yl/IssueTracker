@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { DynamicallyRouteApp } from './DynamicallyRouteApp';
-import { AppRoutes } from './App';
+import { AppRoutes } from './App/App';
 
 const contentNode = document.getElementById('root');
 

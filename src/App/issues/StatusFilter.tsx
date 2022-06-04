@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { useSearchParamsUpdate } from './react-router-hooks';
+import { useSearchParamsUpdate } from '../../react-router-hooks';
 
 type SelectionProps= {
   defaultChoice:string,

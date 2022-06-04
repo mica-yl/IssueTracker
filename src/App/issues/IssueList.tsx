@@ -6,12 +6,12 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 
+import { API } from '#client/IssueAPI';
+import { hashSearchParams } from '#client/react-router-hooks';
 import { Filter, IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
-import { API } from './IssueAPI';
 import { IssuePagination } from './IssuePagination';
 
-import { hashSearchParams } from './react-router-hooks';
 import { Selection } from './StatusFilter';
 import IssueSearch from './IssueSearch';
 

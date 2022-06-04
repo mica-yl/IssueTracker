@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useSearchParamsUpdate } from './react-router-hooks';
+import { useSearchParamsUpdate } from '../../react-router-hooks';
 
 export function divide(current:number, max:number, interval:number) {
   const safeInterval = interval > max ? max : interval;

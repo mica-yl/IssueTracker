@@ -11,11 +11,11 @@ import {
 // bootstrap
 
 import { Button } from 'react-bootstrap';
-import IssueList from './IssueList';
-import IssueEdit from './IssueEdit';
-import { APIAndComponents, useAPI } from './IssueAPI';
-import { DynamicNavigate } from './DynamicallyRouteApp';
-import { IssueReport } from './IssueReport';
+import IssueList from './issues/IssueList';
+import IssueEdit from './issues/edit/IssueEdit';
+import { APIAndComponents, useAPI } from '../IssueAPI';
+import { DynamicNavigate } from '../DynamicallyRouteApp';
+import { IssueReport } from './report/IssueReport';
 import { Header } from './Header';
 
 function NotFound() {

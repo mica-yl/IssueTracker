@@ -3,7 +3,7 @@ import { Button, FormControl, Stack } from 'react-bootstrap';
 import { Search } from 'react-bootstrap-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 import AsyncSelect, { useAsync } from 'react-select/async';
-import { Issue } from '../server/issue';
+import { Issue } from '#server/issue';
 
 export type IssueSearchProps = {
   gotoSearch: (searchText:string)=>string,

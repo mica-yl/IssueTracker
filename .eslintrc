@@ -33,7 +33,7 @@ rules:
     - error
     - argsIgnorePattern: ^_
       varsIgnorePattern: ^_
-      destructuredArrayIgnorePattern: ^_
+      # destructuredArrayIgnorePattern: ^_ # causes error ?
   react/jsx-filename-extension:
     - error
     - extensions:

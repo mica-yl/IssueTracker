@@ -2,7 +2,7 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 
 import IssueRow from './IssueRow';
-import { Issue } from './Issue';
+import { Issue } from '../../Issue';
 
 export default function IssueTable(
   { issues, onDelete }:{issues : Issue[],

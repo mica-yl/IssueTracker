@@ -13,9 +13,9 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 import Accordion from 'react-bootstrap/Accordion';
 
-import { useSearchParamsUpdate } from './react-router-hooks';
+import { useSearchParamsUpdate } from '#client/react-router-hooks';
 import StatusFilter from './StatusFilter';
-import { Status } from '../server/issue';
+import { Status } from '#server/issue';
 
 export type Filter= {
 status:string,

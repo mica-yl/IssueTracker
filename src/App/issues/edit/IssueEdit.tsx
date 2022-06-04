@@ -9,11 +9,11 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
+import { API, APIAndComponents } from '#client/IssueAPI';
 import useErrorBanner from './ErrorBanner';
-import Input, { Maybe } from './Input';
-import { Selection } from './StatusFilter';
-import { Status, Issue, convertIssue } from '../server/issue';
-import { API, APIAndComponents } from './IssueAPI';
+import Input, { Maybe } from '../Input';
+import { Selection } from '../StatusFilter';
+import { Status, Issue, convertIssue } from '#server/issue';
 
 const statusOptions = [...Status];
 

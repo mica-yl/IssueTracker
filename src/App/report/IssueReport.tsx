@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Card, Stack, Table } from 'react-bootstrap';
 import fetch from 'isomorphic-fetch';
 import { useSearchParams } from 'react-router-dom';
-import { Status as StatusStates } from '../server/issue';
-import { FormattedSummary } from '../server/summary';
-import { Filter, IssueFilterAccordion } from './IssueFilter';
+import { Status as StatusStates } from '#server/issue';
+import { FormattedSummary } from '#server/summary';
+import { Filter, IssueFilterAccordion } from '../issues/IssueFilter';
 
 async function dataLoader(host = '', searchParams: URLSearchParams): Promise<FormattedSummary<string>> {
   return fetch(`${host}/api/v1/issues?_summary&${searchParams.toString()}`)

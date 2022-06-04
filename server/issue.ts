@@ -1,4 +1,4 @@
-import IssueAdd from '../src/IssueAdd';
+// import IssueAdd from '#client/IssueAdd';
 
 export const Status = ['New', 'Open', 'Assigned', 'Fixed', 'Verified', 'Closed'] as const;
 export type Status = (typeof Status)[number];

@@ -6,7 +6,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import { Plus, ThreeDots } from 'react-bootstrap-icons';
 import IssueAddNavItem from './IssueAddNavItem';
-import { API } from './IssueAPI';
+import { API } from '../IssueAPI';
 
 
 export function Header(props:{API:API}) {

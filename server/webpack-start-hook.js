@@ -8,7 +8,7 @@ const { patchRequire } = require('fs-monkey');
 const { ufs: hybridFs } = require('unionfs');
 
 const webpackServerConfig = require('../webpack.server-config');
-const webpackClientConfig = require('../webpack.config');
+// const webpackClientConfig = require('../webpack.config');
 
 const argWatch = (() => {
   const arg = process.argv[2];

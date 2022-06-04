@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import { Trash } from 'react-bootstrap-icons';
-import { useSearchParamsUpdate } from './react-router-hooks';
+import { useSearchParamsUpdate } from '#client/react-router-hooks';
 
 export default function IssueRow(props:{issue:Issue}) {
   const {

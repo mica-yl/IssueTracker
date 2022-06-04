@@ -2,9 +2,9 @@ import React, { createContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import fetch from 'isomorphic-fetch/';
 
-import { convertIssue, IssuesJsonResponse } from '../server/issue';
-import useAlert from './AlertMsg';
-import useAsk from './Ask';
+import { convertIssue, IssuesJsonResponse } from '#server/issue';
+import useAlert from './App/AlertMsg';
+import useAsk from './App/Ask';
 import { Issue } from './Issue';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
