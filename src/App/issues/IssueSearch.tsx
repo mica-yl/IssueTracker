@@ -9,7 +9,7 @@ export type IssueSearchProps = {
   gotoSearch: (searchText:string)=>string,
   gotoClear: ()=>string,
   initSearch?:string,
-  loadIssues: (text:string)=> Issue<Date>,
+  loadIssues: (text:string)=> Issue,
 };
 
 async function dataLoader(initValue:string) {

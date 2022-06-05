@@ -3,22 +3,26 @@
 export const Status = ['New', 'Open', 'Assigned', 'Fixed', 'Verified', 'Closed'] as const;
 export type Status = (typeof Status)[number];
 
-export type Issue<X> = {
+export type Issue = {
   _id: string,
   status: Status,
   owner: string,
   effort: number,
-  created: X,
-  completionDate?: X,
+  created: Date,
+  completionDate?: Date,
   title: string,
 };
+
+export type Json<X> = Record<keyof X, string>;
+
+export type JsonIssue = Json<Issue>;
 
 /**
  * this type is out of sync with the implementation.
  */
 export type IssuesJsonResponse = {
   _metadata:{totalCount:number},
-  records: Issue<string>[]
+  records: JsonIssue[]
 };
 
 const issueFieldType = {
@@ -36,13 +40,13 @@ const issueFieldType = {
  * @returns {Promise<Issue>}
  */
 export async function validateIssue(
-  issue:Issue<string|Date>,
+  issue:Issue,
   ignoreRequired: (fieldName:string)=> boolean = () => false,
 ) {
-  const newIssue = {};
+  const newIssue: Partial<Issue> = {};
   const errors:string[] = [];
   // copy scheme fields only and ignore other fields
-  Object.keys(issueFieldType).forEach((field) => {
+  Object.keys(issueFieldType).forEach((field:(keyof (typeof issueFieldType))) => {
     const type = issueFieldType[field];
     const value = issue[field];
     if (value) {
@@ -64,7 +68,7 @@ export async function validateIssue(
   }
 }
 
-export function convertIssue(issue:Issue<Date|string>) : Issue<Date> {
+export function convertIssue(issue:Issue|JsonIssue) : Issue {
   // date returns as a string.
   const newIssue = { ...issue };
 
