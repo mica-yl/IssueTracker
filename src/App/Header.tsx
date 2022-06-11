@@ -9,7 +9,7 @@ import IssueAddNavItem from './IssueAddNavItem';
 import { API } from '../IssueAPI';
 
 
-export function Header(props:{API:API}) {
+export default function Header(props:{API:API}) {
   const { API: { createIssue } } = props;
   return (
     <Navbar bg="light" variant="light" className="fluid">

@@ -16,7 +16,8 @@ import IssueEdit from './issues/edit/IssueEdit';
 import { APIAndComponents, useAPI } from '../IssueAPI';
 import { DynamicNavigate } from '../DynamicallyRouteApp';
 import { IssueReport } from './report/IssueReport';
-import { Header } from './Header';
+import Header from './Header';
+import IssueLogin from './login/IssueLogin';
 
 function NotFound() {
   return (<p>Page Not found</p>);
@@ -50,6 +51,7 @@ export function AppRoutes({ response }) {
       <Route element={<App Components={Components} API={API} />}>
         <Route path="issues" element={<IssueList API={API} />} />
         <Route path="issues/:id" element={<IssueEdit API={API} />} />
+        <Route path="login" element={<IssueLogin />} />
         <Route path="reports" element={<IssueReport />} />
         <Route path="*" element={<NotFound />} />
       </Route>
