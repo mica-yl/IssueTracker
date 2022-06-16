@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 export const defaultUser = {
   name: 'John Doe',
   signedIn: false,
+  picture: '/favicon.ico',
 };
 export const UserContext = React.createContext(defaultUser);
 export const UserDispatcher = React.createContext((user) => {

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
+import { Card } from 'react-bootstrap';
 import GoogleButton from './GoogleButton';
 import { clientID } from './config';
 import { SimpleProfile } from './SimpleProfile';
@@ -26,10 +27,12 @@ export default function IssueLogin() {
         clientId={clientID}
       />
       <ConditionalRender condition={user.signedIn}>
-        <SimpleProfile
-          image={user.picture}
-          name={user.name}
-        />
+        <Card>
+          <SimpleProfile
+            image={user.picture}
+            name={user.name}
+          />
+        </Card>
       </ConditionalRender>
     </>
   );
