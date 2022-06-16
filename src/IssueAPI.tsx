@@ -172,10 +172,12 @@ export default function useIssues(
         if (status === 200) { // ok
           Promise.resolve(json).then(preprocessJsonIssue).then(addIssue);
           return true; // all done
-        } if (status === 422) { // forgot a field ?
+        } if ([422, 403].includes(status)) { // forgot a field ?
           json.then((err) => alertAsync(`Falied to add issue ${err.message}`));
           return false;
         }
+        console.dir(status, json);
+
         return false; // default failed
 
         // throw response;

@@ -2,6 +2,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import { Db, ObjectId } from 'mongodb';
+import authSession from './authSession';
 
 import { validateIssue, Status, convertIssue } from './issue';
 import renderedPageRouter from './renderedPageRouter';
@@ -45,6 +46,7 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
   app.use(bodyParser.json());
 
   app.use(express.static('static'));
+  app.use(authSession({}));
 
   app.get('/api/v1/issues', async function listAPI(req, res) {
     const issuesCollection = await dbConnection
@@ -213,6 +215,10 @@ function getApp(databaseConnection:Promise<Db>|Db|void) {
           (error) => res.status(422).json({ message: `Invalid issue ID format: ${error}` }),
         );
     }
+  });
+
+  app.all('/api/*', (_req, res) => {
+    res.status(501).json({ message: 'unsupported Operation' });
   });
   // browser routing
   app.use('/', renderedPageRouter);

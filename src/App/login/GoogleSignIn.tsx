@@ -47,7 +47,7 @@ export default function GoogleSignInClient(props:GoogleSignInClientProps) {
     },
     [],
   );
-  // to memoize ?
+  // TODO useMemo with [npm:object-hash] or JSON.stringify
   const GoogleClientScript = makeAsyncScriptLoader(
     gsiURL,
     options,
