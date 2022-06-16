@@ -16,8 +16,9 @@ import IssueEdit from './issues/edit/IssueEdit';
 import { APIAndComponents, useAPI } from '../IssueAPI';
 import { DynamicNavigate } from '../DynamicallyRouteApp';
 import { IssueReport } from './report/IssueReport';
-import Header from './Header';
+import Header from './Header/Header';
 import IssueLogin from './login/IssueLogin';
+import UserProvider from './login/UserProvider';
 
 function NotFound() {
   return (<p>Page Not found</p>);
@@ -32,11 +33,13 @@ function App(props: APIAndComponents) {
         <AlertMsg />
       </>
       <div className="container-fluid">
-        <Header API={API} />
-        <Outlet />
-        <div className="footer">
-          <h1>A Footer</h1>
-        </div>
+        <UserProvider>
+          <Header API={API} />
+          <Outlet />
+          <div className="footer">
+            <h1>A Footer</h1>
+          </div>
+        </UserProvider>
       </div>
     </>
   );

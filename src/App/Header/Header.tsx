@@ -5,9 +5,8 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import { Plus, ThreeDots } from 'react-bootstrap-icons';
+import { API } from '#client/IssueAPI';
 import IssueAddNavItem from './IssueAddNavItem';
-import { API } from '../IssueAPI';
-
 
 export default function Header(props:{API:API}) {
   const { API: { createIssue } } = props;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 type ConditionalRenderProps = {
-  children: JSX.Element | JSX.Element[];
+  children: (string | JSX.Element)[];
   condition: boolean;
 };
 export function ConditionalRender(props: ConditionalRenderProps) {
