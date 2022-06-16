@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import { Plus, ThreeDots } from 'react-bootstrap-icons';
 import { API } from '#client/IssueAPI';
 import { Image, Stack } from 'react-bootstrap';
+import { ConditionalRender } from '#client/utils/ConditionalRender';
 import IssueAddNavItem from './IssueAddNavItem';
 import UserNavItem from './UserNavItem';
 import { UserContext } from '../login/UserProvider';
@@ -56,9 +57,20 @@ export default function Header(props:{API:API}) {
               </Stack>
         )}
           >
-            <NavDropdown.Item>
-              Sign Out
-            </NavDropdown.Item>
+            <ConditionalRender condition={user.signedIn}>
+              <LinkContainer to="/signout">
+                <NavDropdown.Item>
+                  Sign Out
+                </NavDropdown.Item>
+              </LinkContainer>
+            </ConditionalRender>
+            <ConditionalRender condition={!user.signedIn}>
+              <LinkContainer to="/login">
+                <NavDropdown.Item>
+                  Log In
+                </NavDropdown.Item>
+              </LinkContainer>
+            </ConditionalRender>
           </NavDropdown>
         </Nav>
       </Container>

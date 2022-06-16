@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 type ConditionalRenderProps = {
-  children: (string | JSX.Element)[];
+  children: ReactNode;
   condition: boolean;
 };
 export function ConditionalRender(props: ConditionalRenderProps) {
@@ -9,7 +9,7 @@ export function ConditionalRender(props: ConditionalRenderProps) {
   if (condition) {
     return (
       <>
-        {children}
+        { children }
       </>
     );
   }
