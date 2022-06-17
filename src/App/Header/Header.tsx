@@ -10,11 +10,13 @@ import { Image, Stack } from 'react-bootstrap';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
 import IssueAddNavItem from './IssueAddNavItem';
 import UserNavItem from './UserNavItem';
-import { UserContext } from '../login/UserProvider';
+import { UserContext, UserDispatcher } from '../login/UserProvider';
+import SignOutNavDropDownItem from './SignOutNavDropDownItem';
 
 export default function Header(props:{API:API}) {
   const { API: { createIssue } } = props;
   const user = useContext(UserContext);
+  const dispatchUser = useContext(UserDispatcher);
 
   return (
     <Navbar bg="light" variant="light" className="fluid">
@@ -48,21 +50,20 @@ export default function Header(props:{API:API}) {
             bsPrefix="no-caret"
             title={(
               <Stack direction="horizontal">
-                <Image src={user.picture} fluid roundedCircle />
                 <Nav.Item>
+                  <Image src={user.picture} fluid roundedCircle />
                   {user.name}
+                  <ThreeDots />
                 </Nav.Item>
-                <ThreeDots />
-
               </Stack>
         )}
           >
             <ConditionalRender condition={user.signedIn}>
-              <LinkContainer to="/signout">
-                <NavDropdown.Item>
-                  Sign Out
-                </NavDropdown.Item>
-              </LinkContainer>
+              <SignOutNavDropDownItem
+                refresh={() => dispatchUser('refresh')}
+              >
+                Sign Out
+              </SignOutNavDropDownItem>
             </ConditionalRender>
             <ConditionalRender condition={!user.signedIn}>
               <LinkContainer to="/login">
