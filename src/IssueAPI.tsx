@@ -110,6 +110,11 @@ export default function useIssues(
     requestParams.set('_limit', issuesPerPage.toString());
     requestParams.set('_offset', offset.toString());
 
+    /**
+     * fetch data
+     * @param search : search words
+     * @returns
+     */
     const dataFetcher = (search?:string) => {
       if (typeof search === 'string') {
         requestParams.set('search', search);
@@ -131,7 +136,11 @@ export default function useIssues(
         return { issues: convertedIssues, totalCount };
       });
     };
-
+    /**
+     * return thunk that loads issues to state. use it  with dataFetcher.
+     * @param dataFetcherCallBack
+     * @returns
+     */
     const dataLoader = (dataFetcherCallBack:(typeof dataFetcher)) => () => dataFetcherCallBack()
       .then(({ issues: convertedIssues, totalCount }) => {
         setIssues(convertedIssues);
@@ -184,13 +193,17 @@ export default function useIssues(
       })
       .catch((err) => console.error(`Error in sending data to server: ${err.message}`));
   }
-
+  function refreshData() {
+    const { dataFetcher, dataLoader } = fetchData([]);
+    dataLoader(dataFetcher)();
+  }
   function confirmDelete(issueId) {
     return ask(`Are you sure to delete issue : ${issueId}`).then((answer) => {
       if (answer) {
         deleteIssue(issueId).then((success) => {
           if (success) {
-            fetchData();// update
+            // update
+            refreshData();
             alertAsync(`delete API: \nissue ${issueId} is deleted!`);
           } else {
             alertAsync(`delete API: Failed to delete issue #${issueId}`);
@@ -203,6 +216,7 @@ export default function useIssues(
 
   return {
     fetchData,
+    refreshData,
     getOneIssue,
     updateOneIssue,
     issues,
