@@ -16,13 +16,9 @@ const log = debug('app:server:index');
 
 const server = http.createServer();
 (async () => {
-  const db = await MongoClient.connect('mongodb://localhost:27017')
-    .then((Client) => Client.db('issuetracker'))
-    .catch((error) => {
-      console.log('ERROR:', error);
-    });
+  const client = await MongoClient.connect('mongodb://localhost:27017/issuetracker');
 
-  const appInstance = getApp(db);
+  const appInstance = getApp(client);
   server.on('request', appInstance);
   server.listen(getApp.port, () => {
     console.log(`App started on port ${getApp.port}`);
@@ -40,7 +36,7 @@ const server = http.createServer();
       server.removeAllListeners('request');
       // server.removeListener('request', localAppInstance);// triggers a bug ?
       const getAppPatched = require('./server').default;     // eslint-disable-line
-      localAppInstance = getAppPatched(db);
+      localAppInstance = getAppPatched(client);
       server.on('request', localAppInstance);
     };
   }

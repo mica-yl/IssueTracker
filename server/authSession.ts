@@ -1,15 +1,21 @@
 import Router from 'express';
 import session from 'express-session';
 import debug from 'debug';
+import { MongoClient } from 'mongodb';
+import * as MongoStore from 'connect-mongo';
 
 const log = debug('app:api:session');
 
 type AuthSessionOptions ={
-
+  clientPromise: Promise<MongoClient>
 };
 
-export default function authSession(options?:AuthSessionOptions) {
+export default function authSession(options:AuthSessionOptions) {
+  const { clientPromise } = options;
   const app = Router();
+  const store = MongoStore.create({
+    clientPromise,
+  });
   app.use(
     session({
       /*
@@ -19,6 +25,7 @@ export default function authSession(options?:AuthSessionOptions) {
       secret: 'L4d4cSz$X#p8FORnEJR^',
       resave: false,
       saveUninitialized: true,
+      store,
     }),
   );
 

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import bodyParser from 'body-parser';
 import express from 'express';
-import { Db, ObjectId } from 'mongodb';
+import { Db, MongoClient, ObjectId } from 'mongodb';
 import authSession from './authSession';
 
 import { validateIssue, Status, convertIssue } from './issue';
@@ -34,19 +34,19 @@ type Query = {
   effort?: { $lte?: number, $gte?: number },
 };
 
-function getApp(databaseConnection:Promise<Db>|Db|void) {
-  if (!databaseConnection) {
-    throw Error(`DataBase is ${databaseConnection}`);
+function getApp(databaseClient:MongoClient) {
+  if (!databaseClient) {
+    throw Error(`DataBase is ${databaseClient}`);
   }
   // app
   const app = express();
-  const dbConnection = Promise.resolve(databaseConnection);
+  const dbConnection = Promise.resolve(databaseClient.db());
 
   // start
   app.use(bodyParser.json());
 
   app.use(express.static('static'));
-  app.use(authSession({}));
+  app.use(authSession({ clientPromise: Promise.resolve(databaseClient) }));
 
   app.get('/api/v1/issues', async function listAPI(req, res) {
     const issuesCollection = await dbConnection
