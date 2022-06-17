@@ -49,15 +49,14 @@ export default function Header(props:{API:API}) {
           <NavDropdown
             bsPrefix="no-caret"
             title={(
-              <Stack direction="horizontal">
-                <Nav.Item>
-                  <Image src={user.picture} fluid roundedCircle />
-                  {user.name}
-                  <ThreeDots />
-                </Nav.Item>
-              </Stack>
+              // needs adaptive resizing
+              <Image src={user.picture} fluid roundedCircle style={({ width: '50px' })} />
         )}
           >
+            <NavDropdown.Header>
+              {user.name}
+            </NavDropdown.Header>
+            <NavDropdown.Divider />
             <ConditionalRender condition={user.signedIn}>
               <SignOutNavDropDownItem
                 refresh={() => dispatchUser('refresh')}
