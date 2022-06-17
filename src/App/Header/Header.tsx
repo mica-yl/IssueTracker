@@ -48,9 +48,10 @@ export default function Header(props:{API:API}) {
           {/* <UserNavItem /> */}
           <NavDropdown
             bsPrefix="no-caret"
+            align="end"
             title={(
               // needs adaptive resizing
-              <Image src={user.picture} fluid roundedCircle style={({ width: '50px' })} />
+              <Image src={user.picture} fluid roundedCircle width="50px" />
         )}
           >
             <NavDropdown.Header>
