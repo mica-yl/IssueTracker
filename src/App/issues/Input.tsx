@@ -84,12 +84,13 @@ const DateValidition : Validation<Date> = (function () {
 type InputProps={
   onChange:(_a:ChangeEvent<HTMLInputElement>, _b:Maybe<InputValues>)=>void,
   value:InputValues,
-  validitionType:InputTypes
-
+  validitionType:InputTypes,
+  disabled?: boolean,
 };
 export default function Input(props:InputProps) {
   const {
     onChange, value: globalValue, validitionType,
+    disabled,
     ...rest
   } = props;
   const {
@@ -139,6 +140,11 @@ export default function Input(props:InputProps) {
       isValid={valid && value !== '' && !focus}
       isInvalid={!valid}
       onChange={$onChange}
+      disabled={disabled}
     />
   );
 }
+
+Input.defaultProps = {
+  disabled: false,
+};

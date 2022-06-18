@@ -1,6 +1,6 @@
 import React, {
   ChangeEvent,
-  FormEvent, useEffect, useReducer, useState,
+  FormEvent, useContext, useEffect, useReducer, useState,
 } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -10,10 +10,12 @@ import {
 import { LinkContainer } from 'react-router-bootstrap';
 
 import { API, APIAndComponents } from '#client/IssueAPI';
+import { Status, Issue, convertIssue } from '#server/issue';
+import { UserContext } from '#client/App/login/UserProvider';
+import { ConditionalRender } from '#client/utils/ConditionalRender';
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from '../Input';
 import { Selection } from '../StatusFilter';
-import { Status, Issue, convertIssue } from '#server/issue';
 
 const statusOptions = [...Status];
 
@@ -102,6 +104,7 @@ function getHandler(state, setState) {
 
 export default function IssueEdit(props:{API:API}) {
   const { API: { updateOneIssue, getOneIssue, confirmDelete } } = props;
+  const { signedIn } = useContext(UserContext);
   const { id } = useParams();
   const {
     ErrorBanner, pushError, clearErrors, pushSuccess,
@@ -233,7 +236,7 @@ export default function IssueEdit(props:{API:API}) {
               <Form.Label>Title </Form.Label>
             </Col>
             <Col {...col2}>
-              <Form.Control required value={title} onChange={onChange('title')} />
+              <Form.Control required value={title} onChange={onChange('title')} disabled={!signedIn} />
             </Col>
           </Row>
           <Row>
@@ -242,7 +245,7 @@ export default function IssueEdit(props:{API:API}) {
 
             </Col>
             <Col {...col2}>
-              <Form.Control value={owner} onChange={onChange('owner')} />
+              <Form.Control value={owner} onChange={onChange('owner')} disabled={!signedIn} />
             </Col>
           </Row>
           <Row>
@@ -252,6 +255,7 @@ export default function IssueEdit(props:{API:API}) {
                 defaultChoice={status}
                 Choices={statusOptions}
                 onChange={onChange('status')}
+                disabled={!signedIn}
               />
             </Col>
           </Row>
@@ -263,6 +267,7 @@ export default function IssueEdit(props:{API:API}) {
                 value={effort}
                 size={5}
                 onChange={onChange('effort')}
+                disabled={!signedIn}
               />
             </Col>
           </Row>
@@ -273,19 +278,24 @@ export default function IssueEdit(props:{API:API}) {
                 validitionType="date"
                 value={completionDate}
                 onChange={onChange('completionDate')}
+                disabled={!signedIn}
               />
             </Col>
           </Row>
           <ButtonToolbar className="justify-content-between">
             <ButtonGroup>
-              <Button type="submit">Submit</Button>
+              <ConditionalRender condition={signedIn}>
+                <Button type="submit">Submit</Button>
+              </ConditionalRender>
               <LinkContainer to="/issues">
-                <Button variant="link">Back</Button>
+                <Button variant={signedIn ? 'link' : 'outline-secondary'}>Back</Button>
               </LinkContainer>
             </ButtonGroup>
-            <LinkContainer to="/issues">
-              <Button variant="outline-danger" className="pull-right" onClick={() => confirmDelete(id)}>Delete</Button>
-            </LinkContainer>
+            <ConditionalRender condition={signedIn}>
+              <LinkContainer to="/issues">
+                <Button variant="outline-danger" className="pull-right" onClick={() => confirmDelete(id)}>Delete</Button>
+              </LinkContainer>
+            </ConditionalRender>
           </ButtonToolbar>
         </Form>
       </Card.Body>

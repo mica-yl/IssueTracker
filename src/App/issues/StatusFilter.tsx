@@ -6,18 +6,27 @@ import { useSearchParamsUpdate } from '../../react-router-hooks';
 type SelectionProps= {
   defaultChoice:string,
   Choices:string[],
-  onChange:React.ChangeEventHandler<HTMLSelectElement>, }
+  onChange:React.ChangeEventHandler<HTMLSelectElement>,
+  disabled?:boolean,
+}
 
 export function Selection(props:SelectionProps) {
-  const { defaultChoice, onChange, Choices } = props;
+  const {
+    defaultChoice, onChange, Choices, disabled,
+  } = props;
   return (
-    <Form.Select value={defaultChoice || Choices[0]} onChange={onChange}>
+    <Form.Select value={defaultChoice || Choices[0]} onChange={onChange} disabled={disabled}>
       {Choices.map((aChoice) => (
         <option key={aChoice} value={aChoice}>{aChoice}</option>
       ))}
     </Form.Select>
   );
 }
+
+Selection.defaultProps = {
+  disabled: false,
+};
+
 export function useStatus(statusArr: string[], noSelection = 'All') {
   const statusSet = [...new Set([noSelection, ...statusArr])];
   const [statusFilter, setStatusFilter] = useState(noSelection);
