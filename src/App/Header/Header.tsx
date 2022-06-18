@@ -40,11 +40,13 @@ export default function Header(props:{API:API}) {
           </Nav.Item>
         </Nav>
         <Nav className="pull-right">
-          <IssueAddNavItem onSubmit={createIssue}>
-            <Plus />
-            {' '}
-            Create Issue
-          </IssueAddNavItem>
+          <ConditionalRender condition={user.signedIn}>
+            <IssueAddNavItem onSubmit={createIssue}>
+              <Plus />
+              {' '}
+              Create Issue
+            </IssueAddNavItem>
+          </ConditionalRender>
           {/* <UserNavItem /> */}
           <NavDropdown
             bsPrefix="no-caret"

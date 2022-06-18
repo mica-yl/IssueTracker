@@ -1,22 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Table from 'react-bootstrap/Table';
 
+import { Issue } from '#server/issue';
+import { ConditionalRender } from '#client/utils/ConditionalRender';
 import IssueRow from './IssueRow';
-import { Issue } from '../../Issue';
+import { UserContext } from '../login/UserProvider';
+
+type IssueTableProps = {
+  issues : Issue[],
+  onDelete:(id:string)=>void
+};
 
 export default function IssueTable(
-  { issues, onDelete }:{issues : Issue[],
-    onDelete:(id:string)=>void},
+  { issues, onDelete }:IssueTableProps,
 ) {
-  const issueRows = issues.map(
-    (issue:{_id:string}) => (
-      <IssueRow
-        key={issue._id}
-        issue={issue}
-        onDelete={() => onDelete(issue._id)}
-      />
-    ),
-  );
+  const { signedIn } = useContext(UserContext);
+  const issueRows = (function generateIssueRows() {
+    return issues.map(
+      (issue: Issue) => (
+        <IssueRow
+          key={issue._id}
+          issue={issue}
+          onDelete={() => (signedIn ? onDelete(issue._id) : () => 0)}
+        />
+      ),
+    );
+  }());
   /*
     // generation code
     (function(obj){
@@ -38,7 +47,9 @@ export default function IssueTable(
           <th>effort</th>
           <th>completionDate</th>
           <th>title</th>
-          <th>delete</th>
+          <ConditionalRender condition={signedIn}>
+            <th>delete</th>
+          </ConditionalRender>
         </tr>
       </thead>
       <tbody>
