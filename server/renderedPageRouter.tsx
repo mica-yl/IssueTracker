@@ -4,7 +4,7 @@ import Router from 'express';
 
 import { DynamicallyRouteApp } from '#client/DynamicallyRouteApp';
 import { AppRoutes } from '#client/App/App';
-import template from './template.js';
+import template from './template';
 
 function renderedPageRouter() {
   const app = Router();

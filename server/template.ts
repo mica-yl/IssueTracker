@@ -1,4 +1,4 @@
-export default function template(body) {
+export default function template(body:string) {
   return `<!DOCTYPE html>
 
   <html>
