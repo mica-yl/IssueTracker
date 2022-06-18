@@ -5,9 +5,9 @@ import Button from 'react-bootstrap/Button';
 export default function useAlert() {
   const [show, setShow] = useState(false);
   const [msg, setMsg] = useState('');
-  const [callback, setCallback] = useState(() => (_) => 0);
+  const [callback, setCallback] = useState(() => (i:boolean) => {});
   // const [result,setResult]=useState();
-  function AlertMsg(props) {
+  function AlertMsg(props:React.ComponentProps<typeof Modal>) {
     return (
       <Modal show={show} backdrop="static" {...props}>
         <Modal.Header />
