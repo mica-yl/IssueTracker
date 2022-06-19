@@ -10,7 +10,7 @@ import { UserContext } from '../login/UserProvider';
 
 type IssueRowProps = {
   issue: Issue,
-onDelete: ()=>void,
+  onDelete?: ()=>void,
 };
 
 export default function IssueRow(props:IssueRowProps) {
@@ -47,3 +47,7 @@ export default function IssueRow(props:IssueRowProps) {
     </tr>
   );
 }
+
+IssueRow.defualtProps = {
+  onDelete: undefined,
+};

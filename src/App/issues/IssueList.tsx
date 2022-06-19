@@ -1,7 +1,9 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect, useReducer } from 'react';
+import React, {
+  useState, useEffect, useReducer, useContext,
+} from 'react';
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
@@ -14,6 +16,7 @@ import { IssuePagination } from './IssuePagination';
 
 import { Selection } from './StatusFilter';
 import IssueSearch from './IssueSearch';
+import { UserContext } from '../login/UserProvider';
 
 export default function IssueList(props:{API:API}) {
   const { API } = props;
@@ -21,8 +24,9 @@ export default function IssueList(props:{API:API}) {
     confirmDelete, fetchData,
     issues, searchParams, maxIssues, newSearchParams, setSearchParams,
   } = API;
-
+  const { signedIn } = useContext(UserContext);
   // needs to be automated by limiting search parameters use.
+  // TODO search params Context.
   const searchKeys = ['owner', 'status', 'effort_lte', 'effort_gte', 'search'];
   const allowedKeys = searchKeys.concat('page');
   const { dataFetcher, issuesPerPage, dataLoader } = fetchData(searchKeys);
@@ -77,9 +81,9 @@ export default function IssueList(props:{API:API}) {
           }}
         />
       </Stack>
-      <IssueTable issues={issues} onDelete={confirmDelete} />
+      <IssueTable issues={issues} onDelete={signedIn ? confirmDelete : undefined} />
       <Selection
-        defaultChoice={searchParams.get('issuesPerPage')}
+        defaultChoice={searchParams.get('issuesPerPage') || '10'}
         Choices={['10', '15', '20', maxIssues.toString()]}
         onChange={(e) => setSearchParams(newSearchParams(
           { issuesPerPage: e.target.value, page: 1 },
@@ -87,7 +91,7 @@ export default function IssueList(props:{API:API}) {
       />
       <div className="d-flex justify-content-center">
         <IssuePagination
-          current={parseInt(searchParams.get('page'), 10) || 1}
+          current={parseInt(searchParams.get('page') || '1', 10)}
           max={maxPages}
           interval={10}
           gotoRedirect={(page:number) => `?${newSearchParams({ page: page.toString() }).toString()}`}

@@ -8,20 +8,19 @@ import { UserContext } from '../login/UserProvider';
 
 type IssueTableProps = {
   issues : Issue[],
-  onDelete:(id:string)=>void
+  onDelete?:(id:string)=>void
 };
 
 export default function IssueTable(
   { issues, onDelete }:IssueTableProps,
 ) {
-  const { signedIn } = useContext(UserContext);
   const issueRows = (function generateIssueRows() {
     return issues.map(
       (issue: Issue) => (
         <IssueRow
           key={issue._id}
           issue={issue}
-          onDelete={() => (signedIn ? onDelete(issue._id) : () => 0)}
+          onDelete={onDelete ? (() => onDelete(issue._id)) : undefined}
         />
       ),
     );
@@ -47,7 +46,7 @@ export default function IssueTable(
           <th>effort</th>
           <th>completionDate</th>
           <th>title</th>
-          <ConditionalRender condition={signedIn}>
+          <ConditionalRender condition={!!onDelete}>
             <th>delete</th>
           </ConditionalRender>
         </tr>
@@ -58,3 +57,6 @@ export default function IssueTable(
     </Table>
   );
 }
+IssueTable.defaultProps = {
+  onDelete: undefined,
+};
