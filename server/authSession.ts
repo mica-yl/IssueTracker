@@ -1,5 +1,5 @@
 import Router from 'express';
-import session from 'express-session';
+import expressSession from 'express-session';
 import debug from 'debug';
 import { MongoClient } from 'mongodb';
 import * as MongoStore from 'connect-mongo';
@@ -17,7 +17,7 @@ export default function authSession(options:AuthSessionOptions) {
     clientPromise,
   });
   app.use(
-    session({
+    expressSession({
       /*
        store : use mongo-connect because
           *MemoryStore, is purposely not designed for a production environment. *
