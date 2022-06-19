@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { ServerContext } from '#server/ServerContext';
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 
 export const defaultUser = {
   name: 'John Doe',
@@ -43,11 +46,18 @@ type UserContextProps = {
 
 export default function UserProvider(props:UserContextProps) {
   const { children } = props;
-  const [user, setUser] = useState(defaultUser);
+  const { request } = useContext(ServerContext);
+  const currentUser: User = useMemo(() => {
+    if (request && request.session && request.session.user) {
+      return request.session.user;
+    }
+    return defaultUser;
+  }, []);
+  const [user, setUser] = useState(currentUser);
 
   useEffect(() => {
     getMe()
-      .then((user) => (user ? setUser(user) : null));
+      .then((me) => (me ? setUser(me) : null));
   }, []);
 
   return (
