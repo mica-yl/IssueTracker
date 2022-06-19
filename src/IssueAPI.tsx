@@ -5,9 +5,9 @@ import fetch from 'isomorphic-fetch/';
 import { convertIssue, IssuesJsonResponse } from '#server/issue';
 import useAlert from './App/AlertMsg';
 import useAsk from './App/Ask';
-import { Issue } from './Issue';
 import { useSearchParamsUpdate } from './react-router-hooks';
 
+type Issue = Record<string, unknown>;
 const prettyJson = (obj) => JSON.stringify(obj, null, ' ');
 
 export function preprocessJsonIssue(issue:Issue) {
