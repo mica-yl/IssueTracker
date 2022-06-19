@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-no-constructed-context-values */
+// not a component ?
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import Router from 'express';
@@ -5,19 +7,25 @@ import Router from 'express';
 import { DynamicallyRouteApp } from '#client/DynamicallyRouteApp';
 import { AppRoutes } from '#client/App/App';
 import template from './template';
+import { ServerContext } from './ServerContext';
 
 function renderedPageRouter() {
   const app = Router();
-  app.get('*', (req, res, next) => {
+  app.get('*', (request, response, next) => {
+    const context:ServerContext = {
+      request, response, inServer: true,
+    };
     const html = renderToString(
-      <DynamicallyRouteApp
-        location={req.url}
-        response={res}
-        AppRoutes={AppRoutes}
-      />,
+      <ServerContext.Provider value={context}>
+        <DynamicallyRouteApp>
+          <AppRoutes />
+        </DynamicallyRouteApp>
+
+      </ServerContext.Provider>
+      ,
     );
-    if (!res.headersSent) {
-      res.send(template(html));
+    if (!response.headersSent) {
+      response.send(template(html));
     }
   });
   return app;

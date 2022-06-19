@@ -102,6 +102,8 @@ function getHandler(state, setState) {
   };
 }
 
+const [col1, col2] = [{ sm: 3 }, { sm: 9, lg: 7 }];
+
 export default function IssueEdit(props:{API:API}) {
   const { API: { updateOneIssue, getOneIssue, confirmDelete } } = props;
   const { signedIn } = useContext(UserContext);
@@ -126,7 +128,6 @@ export default function IssueEdit(props:{API:API}) {
     _id: ID, title, status, owner, effort,
     completionDate, created,
   } = issue;
-  const [col1, col2] = [{ sm: 3 }, { sm: 9, lg: 7 }];
 
   const goto = useNavigate();
 

@@ -45,12 +45,12 @@ function App(props: APIAndComponents) {
   );
 }
 
-export function AppRoutes({ response }) {
+export function AppRoutes() {
   const { API, Components } = useAPI();
 
   return (
     <Routes>
-      <Route index element={<DynamicNavigate response={response} to="issues" />} />
+      <Route index element={<DynamicNavigate to="issues" />} />
       <Route element={<App Components={Components} API={API} />}>
         <Route path="issues" element={<IssueList API={API} />} />
         <Route path="issues/:id" element={<IssueEdit API={API} />} />
@@ -59,17 +59,5 @@ export function AppRoutes({ response }) {
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
-  );
-}
-
-function RoutedApp() {
-  return (
-    <React.StrictMode>
-      <BrowserRouter>
-        {/* <MemoryRouter> */}
-        <AppRoutes response={undefined} />
-        {/* </MemoryRouter> */}
-      </BrowserRouter>
-    </React.StrictMode>
   );
 }

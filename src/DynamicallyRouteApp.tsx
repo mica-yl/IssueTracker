@@ -1,29 +1,47 @@
 import { Response } from 'express';
 import { BrowserRouter, Navigate } from 'react-router-dom';
 import { StaticRouter } from 'react-router-dom/server';
-import React from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { SSRProvider } from 'react-bootstrap';
+import { ServerContext } from '#server/ServerContext';
+
+type Props = {
+  to: string;
+  status?: 301 | 302;
+};
 
 export function DynamicNavigate(props:
-  {response?:Response, to?:string, status?:301|302}) {
-  const { response, to, status = 302 } = props;
-  if (response && to) {
+  Props) {
+  const { to, status = 302 } = props;
+  const { response } = useContext(ServerContext);
+  if (response) {
     response.redirect(status, to);
     return null;
   }
   return <Navigate to={to} />;
 }
+DynamicNavigate.defaultProps = {
+  status: 302,
+};
+
+type DynamicallyRouteAppProps = {
+  // response?: Response;
+  // location?: string;
+  // AppRoutes: any;
+  children:ReactNode
+};
 
 export function DynamicallyRouteApp(
-  { location, response, AppRoutes }:
-  {response?:Response, location?:string, AppRoutes:any},
+  { children }:
+  DynamicallyRouteAppProps,
 ) {
-  if (response) {
+  const { request } = useContext(ServerContext);
+  if (request) {
     return (
       <React.StrictMode>
         <SSRProvider>
-          <StaticRouter location={location}>
-            <AppRoutes response={response} url={location} />
+          <StaticRouter location={request.url}>
+            {children}
           </StaticRouter>
         </SSRProvider>
       </React.StrictMode>
@@ -32,9 +50,11 @@ export function DynamicallyRouteApp(
   return (
     <React.StrictMode>
       <BrowserRouter>
-        <AppRoutes />
+        {children}
       </BrowserRouter>
     </React.StrictMode>
 
   );
 }
+
+DynamicallyRouteApp.defaultProps = {};
