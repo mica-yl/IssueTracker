@@ -200,7 +200,8 @@ export default function useIssues(
   function confirmDelete(issueId) {
     return ask(`Are you sure to delete issue : ${issueId}`).then((answer) => {
       if (answer) {
-        deleteIssue(issueId).then((success) => {
+        const deleted = deleteIssue(issueId);
+        deleted.then((success) => {
           if (success) {
             // update
             refreshData();
@@ -209,6 +210,7 @@ export default function useIssues(
             alertAsync(`delete API: Failed to delete issue #${issueId}`);
           }
         });
+        return deleted;
       }
       return false;// failed
     });

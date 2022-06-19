@@ -2,15 +2,15 @@ import React, {
   ChangeEvent,
   FormEvent, useContext, useEffect, useReducer, useState,
 } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Form, Button, ButtonToolbar, Card,
   Col, Row, ButtonGroup,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import { API, APIAndComponents } from '#client/IssueAPI';
-import { Status, Issue, convertIssue } from '#server/issue';
+import { API } from '#client/IssueAPI';
+import { Status } from '#server/issue';
 import { UserContext } from '#client/App/login/UserProvider';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
 import useErrorBanner from './ErrorBanner';
@@ -128,6 +128,8 @@ export default function IssueEdit(props:{API:API}) {
   } = issue;
   const [col1, col2] = [{ sm: 3 }, { sm: 9, lg: 7 }];
 
+  const goto = useNavigate();
+
   useEffect(function loadIssue() {
     getOneIssue(id).then((result) => {
       if (result.message) {
@@ -142,6 +144,7 @@ export default function IssueEdit(props:{API:API}) {
       }
     });
   }, [id]);
+
   useEffect(function fieldsValidityAutoCheck() {
     const key = 'invalid-fileds';
     const invalids = getInvalidFields();
@@ -292,9 +295,15 @@ export default function IssueEdit(props:{API:API}) {
               </LinkContainer>
             </ButtonGroup>
             <ConditionalRender condition={signedIn}>
-              <LinkContainer to="/issues">
-                <Button variant="outline-danger" className="pull-right" onClick={() => confirmDelete(id)}>Delete</Button>
-              </LinkContainer>
+              <Button
+                variant="outline-danger"
+                className="pull-right"
+                onClick={() => confirmDelete(id)
+                  .then((deleted) => (deleted ? goto('/issues') : null))}
+              >
+                Delete
+
+              </Button>
             </ConditionalRender>
           </ButtonToolbar>
         </Form>
