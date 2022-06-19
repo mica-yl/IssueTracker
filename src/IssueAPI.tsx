@@ -230,7 +230,9 @@ export default function useIssues(
     setSearchParams,
   };
 }
-// to refactor as a Context or to disintegrate ?
+/* TODO refactor as multiple contexts.
+    toast, confirmation, searchParams.
+*/
 // useAPI
 export function useAPI() {
   const { Ask, ask } = useAsk();
