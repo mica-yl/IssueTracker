@@ -5,17 +5,15 @@ import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { ServerContext } from '#server/ServerContext';
-import { DynamicallyRouteApp } from './DynamicallyRouteApp';
+import { DynamicRouter } from '#client/DynamicRouter/DynamicRouter';
 import { AppRoutes } from './App/App';
 
 const contentNode = document.getElementById('root');
 
-const context:ServerContext = { inServer: false };
 ReactDOM.render(
-  <DynamicallyRouteApp>
+  <DynamicRouter>
     <AppRoutes />
-  </DynamicallyRouteApp>,
+  </DynamicRouter>,
 
   contentNode,
 );

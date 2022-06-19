@@ -4,10 +4,10 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import Router from 'express';
 
-import { DynamicallyRouteApp } from '#client/DynamicallyRouteApp';
+import { DynamicRouter } from '#client/DynamicRouter/DynamicRouter';
 import { AppRoutes } from '#client/App/App';
 import template from './template';
-import { ServerContext } from './ServerContext';
+import { ServerContext } from '#client/DynamicRouter/ServerContext';
 
 function renderedPageRouter() {
   const app = Router();
@@ -17,9 +17,9 @@ function renderedPageRouter() {
     };
     const html = renderToString(
       <ServerContext.Provider value={context}>
-        <DynamicallyRouteApp>
+        <DynamicRouter>
           <AppRoutes />
-        </DynamicallyRouteApp>
+        </DynamicRouter>
 
       </ServerContext.Provider>
       ,

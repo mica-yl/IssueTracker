@@ -2,19 +2,16 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  BrowserRouter,
   Route, Routes,
   Outlet,
 } from 'react-router-dom';
-// bootstrap
 
-import { Button } from 'react-bootstrap';
+import { APIAndComponents, useAPI } from '#client/IssueAPI';
 import IssueList from './issues/IssueList';
 import IssueEdit from './issues/edit/IssueEdit';
-import { APIAndComponents, useAPI } from '../IssueAPI';
-import { DynamicNavigate } from '../DynamicallyRouteApp';
+import { DynamicNavigate } from '../DynamicRouter/DynamicNavigate';
 import { IssueReport } from './report/IssueReport';
 import Header from './Header/Header';
 import IssueLogin from './login/IssueLogin';

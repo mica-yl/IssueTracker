@@ -1,4 +1,4 @@
-import { ServerContext } from '#server/ServerContext';
+import { ServerContext } from '#client/DynamicRouter/ServerContext';
 import React, {
   useContext, useEffect, useMemo, useState,
 } from 'react';
