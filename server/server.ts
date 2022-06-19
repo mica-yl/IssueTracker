@@ -2,7 +2,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import { MongoClient } from 'mongodb';
-import http from 'http';
 import authSession from './authSession';
 import renderedPageRouter from './renderedPageRouter';
 import { restAPI } from './restAPI';
