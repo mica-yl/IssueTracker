@@ -32,11 +32,11 @@ function getApp(databaseClient:MongoClient) {
     res.status(501).json({ message: 'unsupported Operation' });
   });
 
-  // server-side rendering + fallback
-  app.use('/', renderedPageRouter());
-
   // static files. includes favico
   app.use(express.static('static'));
+
+  // server-side rendering + fallback
+  app.use('/', renderedPageRouter());
 
   return app;
 }
