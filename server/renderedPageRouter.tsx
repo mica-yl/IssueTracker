@@ -1,13 +1,15 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 // not a component ?
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import {
+  renderToString, renderToStaticNodeStream, renderToStaticMarkup, renderToNodeStream,
+} from 'react-dom/server';
 import Router from 'express';
 
 import { DynamicRouter } from '#client/DynamicRouter/DynamicRouter';
 import { AppRoutes } from '#client/App/App';
-import template from './template';
 import { ServerContext } from '#client/DynamicRouter/ServerContext';
+import { templateStream } from './template';
 
 function renderedPageRouter() {
   const app = Router();
@@ -15,18 +17,17 @@ function renderedPageRouter() {
     const context:ServerContext = {
       request, response, inServer: true,
     };
-    const html = renderToString(
+    const App = (
       <ServerContext.Provider value={context}>
         <DynamicRouter>
           <AppRoutes />
         </DynamicRouter>
-
       </ServerContext.Provider>
-      ,
     );
-    if (!response.headersSent) {
-      response.send(template(html));
-    }
+    renderToNodeStream(App)
+      .pipe(templateStream())
+      // TODO html stream formater
+      .pipe(response);
   });
   return app;
 }
