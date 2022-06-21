@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import fetch from 'isomorphic-fetch/';
+import fetch from 'isomorphic-fetch';
 
 import { convertIssue, IssuesJsonResponse } from '#server/issue';
 import { useSearchParamsUpdate } from '#client/react-router-hooks';
-import { Ask } from '#client/Toast/Ask';
-import { AlertAsync } from '#client/Toast/AlertMsg';
 import { ToastAPI } from '#client/Toast/ToastProvider';
 
 type Issue = Record<string, unknown>;
@@ -151,6 +149,11 @@ export default function useIssues(
     return { dataFetcher, issuesPerPage, dataLoader };
   }
 
+  function refreshData() {
+    const { dataFetcher, dataLoader } = fetchData([]);
+    dataLoader(dataFetcher)();
+  }
+  /*
   function addIssue(issue) {
     if (issue) { // issue shouldn't be null or undefined.
       setIssues((data) => data.concat(issue));
@@ -165,6 +168,7 @@ export default function useIssues(
       title: 'Completion date should be optional !',
     });
   }
+  */
 
   function createIssue(newIssue:Issue) {
     return fetch(
@@ -174,29 +178,21 @@ export default function useIssues(
         headers: { 'Content-Type': 'application/json' },
         body: prettyJson(newIssue),
       },
-    )
-      .then((response) => [response.status, response.json()])
-      .then(function checkStatus([status, json]) {
-        // const json = response.json();
-        if (status === 200) { // ok
-          Promise.resolve(json).then(preprocessJsonIssue).then(addIssue);
-          return true; // all done
-        } if ([422, 403].includes(status)) { // forgot a field ?
-          json.then((err) => alertAsync(`Falied to add issue ${err.message}`));
-          return false;
-        }
-        console.dir(status, json);
-
-        return false; // default failed
-
-        // throw response;
-      })
+    ).then(function checkStatus(response) {
+      const { status } = response;
+      const json = response.json();
+      if (status === 200) { // ok
+        refreshData();
+        return true; // all done
+      } if ([422, 403].includes(status)) { // forgot a field ?
+        json.then((err) => alertAsync(`Falied to add issue ${err.message}`));
+        return false;
+      }
+      return false; // default failed
+    })
       .catch((err) => console.error(`Error in sending data to server: ${err.message}`));
   }
-  function refreshData() {
-    const { dataFetcher, dataLoader } = fetchData([]);
-    dataLoader(dataFetcher)();
-  }
+
   function confirmDelete(issueId) {
     return ask(`Are you sure to delete issue : ${issueId}`).then((answer) => {
       if (answer) {
@@ -224,7 +220,7 @@ export default function useIssues(
     issues,
     maxIssues,
     createIssue,
-    addTestIssue,
+    // addTestIssue,
     confirmDelete,
     deleteIssue,
     searchParams,

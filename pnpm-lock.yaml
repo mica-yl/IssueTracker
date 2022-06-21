@@ -13,6 +13,7 @@ specifiers:
   '@types/express-session': ^1.17.4
   '@types/gapi': ^0.0.42
   '@types/google.accounts': ^0.0.2
+  '@types/isomorphic-fetch': ^0.0.36
   '@types/jest': ^27.5.1
   '@types/react': ^17.0.43
   '@types/react-async-script': ^1.2.1
@@ -105,6 +106,7 @@ devDependencies:
   '@types/express-session': 1.17.4
   '@types/gapi': 0.0.42
   '@types/google.accounts': 0.0.2
+  '@types/isomorphic-fetch': 0.0.36
   '@types/jest': 27.5.1
   '@types/react-async-script': 1.2.1
   '@types/react-bootstrap': 0.32.29
@@ -2020,6 +2022,10 @@ packages:
   /@types/invariant/2.2.35:
     resolution: {integrity: sha512-DxX1V9P8zdJPYQat1gHyY0xj3efl8gnMVjiM9iCY6y27lj+PoQWkgjt8jDqmovPqULkKVpKRg8J36iQiA+EtEg==}
     dev: false
+
+  /@types/isomorphic-fetch/0.0.36:
+    resolution: {integrity: sha512-ulw4d+vW1HKn4oErSmNN2HYEcHGq0N1C5exlrMM0CRqX1UUpFhGb5lwiom5j9KN3LBJJDLRmYIZz1ghm7FIzZw==}
+    dev: true
 
   /@types/istanbul-lib-coverage/2.0.4:
     resolution: {integrity: sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==}
