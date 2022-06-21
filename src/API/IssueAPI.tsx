@@ -2,9 +2,10 @@ import { useState } from 'react';
 import fetch from 'isomorphic-fetch/';
 
 import { convertIssue, IssuesJsonResponse } from '#server/issue';
-import useAlert from '#client/App/AlertMsg';
-import useAsk from '#client/App/Ask';
 import { useSearchParamsUpdate } from '#client/react-router-hooks';
+import { Ask } from '#client/Toast/Ask';
+import { AlertAsync } from '#client/Toast/AlertMsg';
+import { ToastAPI } from '#client/Toast/ToastProvider';
 
 type Issue = Record<string, unknown>;
 const prettyJson = (obj) => JSON.stringify(obj, null, ' ');
@@ -231,22 +232,16 @@ export default function useIssues(
     setSearchParams,
   };
 }
-/* TODO refactor as multiple contexts.
-    toast, confirmation, searchParams.
-*/
-// useAPI
-export function useAPI() {
-  const { Ask, ask } = useAsk();
-  const { AlertMsg, alertAsync } = useAlert();
-  const API = { ...useIssues(alertAsync, ask), ask, alertAsync };
-  const Components = { Ask, AlertMsg };
+// TODO refactor as multiple contexts.
+// DONE toast.
+// DONE confirmation.
+// TODO searchParams.
 
-  return {
-    API,
-    Components,
-  };
+// useAPI
+export function useAPI({ ask, alertAsync }:ToastAPI) {
+  const API = { ...useIssues(alertAsync, ask), ask, alertAsync };
+
+  return API;
 }
 
-export type APIAndComponents = ReturnType< (typeof useAPI)>;
-export type API = ReturnType< (typeof useAPI)> ['API'];
-export type Components = ReturnType< (typeof useAPI)> ['Components'];
+export type API = ReturnType< (typeof useAPI)>;

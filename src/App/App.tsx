@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 
 import ApiProvider from '#client/API/ApiProvider';
+import ToastProvider from '#client/Toast/ToastProvider';
 import IssueList from './issues/IssueList';
 import IssueEdit from './issues/edit/IssueEdit';
 import { DynamicNavigate } from '../DynamicRouter/DynamicNavigate';
@@ -37,17 +38,19 @@ function App() {
 
 export function AppRoutes() {
   return (
-    <ApiProvider>
-      <Routes>
-        <Route index element={<DynamicNavigate to="issues" />} />
-        <Route element={<App />}>
-          <Route path="issues" element={<IssueList />} />
-          <Route path="issues/:id" element={<IssueEdit />} />
-          <Route path="login" element={<IssueLogin />} />
-          <Route path="reports" element={<IssueReport />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </ApiProvider>
+    <ToastProvider>
+      <ApiProvider>
+        <Routes>
+          <Route index element={<DynamicNavigate to="issues" />} />
+          <Route element={<App />}>
+            <Route path="issues" element={<IssueList />} />
+            <Route path="issues/:id" element={<IssueEdit />} />
+            <Route path="login" element={<IssueLogin />} />
+            <Route path="reports" element={<IssueReport />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </ApiProvider>
+    </ToastProvider>
   );
 }

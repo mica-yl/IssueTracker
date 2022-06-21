@@ -2,32 +2,33 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-export default function useAsk() {
+export default function useAlert() {
   const [show, setShow] = useState(false);
   const [msg, setMsg] = useState('');
-  const [callback, setCallback] = useState(() => (_) => 0);
+  const [callback, setCallback] = useState(() => (i:boolean) => {});
   // const [result,setResult]=useState();
-  function Ask(props) {
+  function AlertMsg(props:React.ComponentProps<typeof Modal>) {
     return (
       <Modal show={show} backdrop="static" {...props}>
         <Modal.Header />
         <Modal.Body>{msg}</Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => (callback(true), setShow(false))}>Yes</Button>
-          <Button variant="secondary" onClick={() => (callback(false), setShow(false))}>No</Button>
+          <Button variant="primary" onClick={() => (callback(true), setShow(false))}>Ok</Button>
         </Modal.Footer>
       </Modal>
     );
   }
-  async function ask(question) {
+  async function alertAsync(message:string):Promise<true> {
     return new Promise((resolve) => {
-      setMsg(question);
+      setMsg(message);
       setCallback(() => resolve);
       setShow(true);
     });
   }
 
   return {
-    Ask, ask,
+    AlertMsg, alertAsync,
   };
 }
+
+export type AlertAsync= ReturnType<typeof useAlert>['alertAsync'];

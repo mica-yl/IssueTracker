@@ -1,3 +1,4 @@
+import { useToast } from '#client/Toast/ToastProvider';
 import React, { ReactNode } from 'react';
 import { useAPI, API } from './IssueAPI';
 
@@ -8,11 +9,10 @@ type ApiProviderProps = {
 export const ApiContext = React.createContext({} as API);
 
 export default function ApiProvider({ children }: ApiProviderProps) {
-  const { API: api, Components: { Ask, AlertMsg } } = useAPI();
+  const ToastAPI = useToast();
+  const api = useAPI(ToastAPI);
   return (
     <ApiContext.Provider value={api}>
-      <Ask />
-      <AlertMsg />
       {children}
     </ApiContext.Provider>
   );
