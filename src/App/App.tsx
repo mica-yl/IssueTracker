@@ -8,7 +8,7 @@ import {
   Outlet,
 } from 'react-router-dom';
 
-import { APIAndComponents, useAPI } from '#client/IssueAPI';
+import ApiProvider from '#client/API/ApiProvider';
 import IssueList from './issues/IssueList';
 import IssueEdit from './issues/edit/IssueEdit';
 import { DynamicNavigate } from '../DynamicRouter/DynamicNavigate';
@@ -21,40 +21,33 @@ function NotFound() {
   return (<p>Page Not found</p>);
 }
 
-function App(props: APIAndComponents) {
-  const { API, Components: { Ask, AlertMsg } } = props;
+function App() {
   return (
-    <>
-      <>
-        <Ask />
-        <AlertMsg />
-      </>
-      <div className="container-fluid">
-        <UserProvider>
-          <Header API={API} />
-          <Outlet />
-          <div className="footer">
-            <h1>A Footer</h1>
-          </div>
-        </UserProvider>
-      </div>
-    </>
+    <div className="container-fluid">
+      <UserProvider>
+        <Header />
+        <Outlet />
+        <div className="footer">
+          <h1>A Footer</h1>
+        </div>
+      </UserProvider>
+    </div>
   );
 }
 
 export function AppRoutes() {
-  const { API, Components } = useAPI();
-
   return (
-    <Routes>
-      <Route index element={<DynamicNavigate to="issues" />} />
-      <Route element={<App Components={Components} API={API} />}>
-        <Route path="issues" element={<IssueList API={API} />} />
-        <Route path="issues/:id" element={<IssueEdit API={API} />} />
-        <Route path="login" element={<IssueLogin />} />
-        <Route path="reports" element={<IssueReport />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    <ApiProvider>
+      <Routes>
+        <Route index element={<DynamicNavigate to="issues" />} />
+        <Route element={<App />}>
+          <Route path="issues" element={<IssueList />} />
+          <Route path="issues/:id" element={<IssueEdit />} />
+          <Route path="login" element={<IssueLogin />} />
+          <Route path="reports" element={<IssueReport />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </ApiProvider>
   );
 }

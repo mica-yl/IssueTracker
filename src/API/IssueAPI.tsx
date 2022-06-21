@@ -1,11 +1,10 @@
-import React, { createContext, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 import fetch from 'isomorphic-fetch/';
 
 import { convertIssue, IssuesJsonResponse } from '#server/issue';
-import useAlert from './App/AlertMsg';
-import useAsk from './App/Ask';
-import { useSearchParamsUpdate } from './react-router-hooks';
+import useAlert from '#client/App/AlertMsg';
+import useAsk from '#client/App/Ask';
+import { useSearchParamsUpdate } from '#client/react-router-hooks';
 
 type Issue = Record<string, unknown>;
 const prettyJson = (obj) => JSON.stringify(obj, null, ' ');
@@ -241,7 +240,6 @@ export function useAPI() {
   const { AlertMsg, alertAsync } = useAlert();
   const API = { ...useIssues(alertAsync, ask), ask, alertAsync };
   const Components = { Ask, AlertMsg };
-  // const Context = createContext(API);
 
   return {
     API,

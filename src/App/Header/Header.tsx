@@ -5,16 +5,16 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import { Plus, ThreeDots } from 'react-bootstrap-icons';
-import { API } from '#client/IssueAPI';
 import { Image, Stack } from 'react-bootstrap';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
+import { ApiContext } from '#client/API/ApiProvider';
 import IssueAddNavItem from './IssueAddNavItem';
 import UserNavItem from './UserNavItem';
 import { UserContext, UserDispatcher } from '../login/UserProvider';
 import SignOutNavDropDownItem from './SignOutNavDropDownItem';
 
-export default function Header(props:{API:API}) {
-  const { API: { createIssue } } = props;
+export default function Header() {
+  const { createIssue } = useContext(ApiContext);
   const user = useContext(UserContext);
   const dispatchUser = useContext(UserDispatcher);
 

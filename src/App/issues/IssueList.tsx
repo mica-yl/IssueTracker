@@ -8,8 +8,8 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 
-import { API } from '#client/IssueAPI';
 import { hashSearchParams } from '#client/react-router-hooks';
+import { ApiContext } from '#client/API/ApiProvider';
 import { Filter, IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
 import { IssuePagination } from './IssuePagination';
@@ -18,12 +18,11 @@ import { Selection } from './StatusFilter';
 import IssueSearch from './IssueSearch';
 import { UserContext } from '../login/UserProvider';
 
-export default function IssueList(props:{API:API}) {
-  const { API } = props;
+export default function IssueList() {
   const {
     confirmDelete, fetchData,
     issues, searchParams, maxIssues, newSearchParams, setSearchParams,
-  } = API;
+  } = useContext(ApiContext);
   const { signedIn } = useContext(UserContext);
   // needs to be automated by limiting search parameters use.
   // TODO search params Context.

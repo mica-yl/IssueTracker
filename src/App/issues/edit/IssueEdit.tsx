@@ -9,10 +9,10 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import { API } from '#client/IssueAPI';
 import { Status } from '#server/issue';
 import { UserContext } from '#client/App/login/UserProvider';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
+import { ApiContext } from '#client/API/ApiProvider';
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from '../Input';
 import { Selection } from '../StatusFilter';
@@ -104,8 +104,8 @@ function getHandler(state, setState) {
 
 const [col1, col2] = [{ sm: 3 }, { sm: 9, lg: 7 }];
 
-export default function IssueEdit(props:{API:API}) {
-  const { API: { updateOneIssue, getOneIssue, confirmDelete } } = props;
+export default function IssueEdit() {
+  const { updateOneIssue, getOneIssue, confirmDelete } = useContext(ApiContext);
   const { signedIn } = useContext(UserContext);
   const { id } = useParams();
   const {
