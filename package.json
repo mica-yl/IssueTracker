@@ -34,7 +34,6 @@
     "jose": "^4.8.1",
     "mongodb": "^4.4.1",
     "prop-types": "^15.8.1",
-    "ramda": "^0.28.0",
     "react": "^17.0.2",
     "react-async-script": "^1.2.0",
     "react-bootstrap": "^2.2.3",
