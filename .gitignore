@@ -11,4 +11,4 @@ dist
 dump
 
 # credential
-src/App/login/config.*
+src/config.*
