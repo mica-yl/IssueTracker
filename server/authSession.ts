@@ -16,6 +16,7 @@ export default function authSession(options:AuthSessionOptions) {
   const store = MongoStore.create({
     clientPromise,
   });
+
   app.use(
     expressSession({
       /*
@@ -41,35 +42,17 @@ export default function authSession(options:AuthSessionOptions) {
 
   app.post('/api/v1/users/signin', (req, res) => {
     const {
-      id_token, name, picture, id,
+      name, picture, id,
     } = req.body;
-    /*
-    if (!id_token) {
-      res.status(400).send({ code: 400, message: 'Missing Token.' });
-    }
-    */
+
     // no validation yet
     req.session.user = {
       id, name, picture, signedIn: true,
     };
-    log(`[session:${req.session.id}] sign-in:`, req.session.user);
+    log(`[session:${req.session.id}]`);
     res.json(req.session.user);
-    /*
-    fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${req.body.id_token}`)
-      .then((response) => {
-        if (!response.ok) response.json().then((error) => Promise.reject(error));
-        response.json().then((data) => {
-          req.session.user = {
-            signedIn: true, name: data.given_name,
-          };
-          res.json(req.session.user);
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json({ message: `Internal Server Error: ${error}` });
-      });
-      */
+
+    // TODO auth with google
   });
 
   app.all('/api/*', (req, res, next) => {

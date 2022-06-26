@@ -31,6 +31,7 @@ export type Query = {
 
 export function restAPI(dbConnection: Promise<Db>) {
   const app = Router();
+
   app.get('/issues', async function listAPI(req, res) {
     const issuesCollection = await dbConnection
       .then((db) => db
@@ -197,5 +198,6 @@ export function restAPI(dbConnection: Promise<Db>) {
         );
     }
   });
+
   return app;
 }
