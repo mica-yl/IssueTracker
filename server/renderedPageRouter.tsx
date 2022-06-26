@@ -2,7 +2,7 @@
 // not a component ?
 import React from 'react';
 import {
-  renderToString, renderToStaticNodeStream, renderToStaticMarkup, renderToNodeStream,
+  renderToString, renderToNodeStream,
 } from 'react-dom/server';
 import Router from 'express';
 
@@ -13,7 +13,11 @@ import { templateStream } from './template';
 
 function renderedPageRouter() {
   const app = Router();
-  app.get('*', (request, response, next) => {
+  app.get('/', (req, res) => {
+    // static solution in
+    res.redirect('/issues');
+  });
+  app.get('*', (request, response) => {
     const context:ServerContext = {
       request, response, inServer: true,
     };
@@ -27,6 +31,7 @@ function renderedPageRouter() {
     renderToNodeStream(App)
       .pipe(templateStream())
       // TODO html stream formater
+      // .pipe(safeRedirect(response))
       .pipe(response);
   });
   return app;

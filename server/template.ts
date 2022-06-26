@@ -1,4 +1,8 @@
+import { response, Response } from 'express';
 import { PassThrough } from 'stream';
+import debug from 'debug';
+
+const log = debug('app:server:template');
 
 const startChunk = `<!DOCTYPE html>
 
@@ -42,5 +46,19 @@ export const templateStream = () => new PassThrough({
   final(this, next) {
     this.push(Buffer.from(endChunk));
     next();
+  },
+});
+export const safeRedirect = (res:Response) => new PassThrough({
+  transform(this, chunk, encoding, callback) {
+    if (res.writableEnded) {
+      log('headers is sent. destroying this stream...');
+      this.destroy();
+      log('destroying this stream is done !');
+    } else {
+      log('passing a chunk of data.');
+      this.push(chunk, encoding);
+    }
+    log('calling callback');
+    callback();
   },
 });
