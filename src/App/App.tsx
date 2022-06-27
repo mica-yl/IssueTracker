@@ -36,19 +36,25 @@ function App() {
   );
 }
 
+export const AppRoutesObj = (
+  [
+    <Route index element={<DynamicNavigate to="issues" />} key="root" />,
+    <Route element={<App />} key="App">
+      <Route path="issues" element={<IssueList />} />
+      <Route path="issues/:id" element={<IssueEdit />} />
+      <Route path="login" element={<IssueLogin />} />
+      <Route path="reports" element={<IssueReport />} />
+      <Route path="*" element={<NotFound />} />
+    </Route>,
+  ]
+);
+
 export function AppRoutes() {
   return (
     <ToastProvider>
       <ApiProvider>
         <Routes>
-          <Route index element={<DynamicNavigate to="issues" />} />
-          <Route element={<App />}>
-            <Route path="issues" element={<IssueList />} />
-            <Route path="issues/:id" element={<IssueEdit />} />
-            <Route path="login" element={<IssueLogin />} />
-            <Route path="reports" element={<IssueReport />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
+          {AppRoutesObj}
         </Routes>
       </ApiProvider>
     </ToastProvider>
