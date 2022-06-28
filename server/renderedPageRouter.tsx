@@ -9,8 +9,10 @@ import Router from 'express';
 import { DynamicRouter } from '#client/DynamicRouter/DynamicRouter';
 import { AppRoutes, AppRoutesObj } from '#client/App/App';
 import { ServerContext } from '#client/DynamicRouter/ServerContext';
-import { createRoutesFromChildren, matchRoutes } from 'react-router-dom';
+import { createRoutesFromChildren, matchPath, matchRoutes } from 'react-router-dom';
 import debug from 'debug';
+import { DataContext } from '#client/DataContext/DataProvider';
+import { ObjectId } from 'mongodb';
 import { templateStream } from './template';
 import { preRenderHook } from './preRenderHook';
 
@@ -26,25 +28,41 @@ function renderedPageRouter() {
     const matches = matchRoutes(createRoutesFromChildren(AppRoutesObj), request.url);
     log('Components to be rendered: %O', matches?.map((x) => [x.pathname, x.route.element?.type?.name]));
     // pre-render
+    const data = new Map();
     if (matches) {
-      const data = new Map();
-      await matches
-        .map((x) => [x.route.element?.type, x.route.element?.props])
-        .filter(([x, y]) => x && y)
-        .map(async ([element, providedProps]) => {
-          let props;
-          if (element.defaultProps) {
-            props = { ...element.defaultProps };
-          }
-          props = { ...props, ...providedProps };
-          if (preRenderHook in element) {
-            const elementData = await element[preRenderHook]({ request, response, props });
-            data.set(element, elementData);
-            log('element data: %o → %o', element.name, elementData);
-          }
-        });
+      // dependences
+      request.db.ObjectId = ObjectId;
+
+      // request params
+      const pathes = matches
+        .map((x) => x.route.path)
+        .filter((x) => x)
+        .map((pattern) => matchPath(pattern, request.url)?.params);
+      log('params: %O', pathes);
+
+      request.params.matches = pathes.reduce((prev, curr) => ({ ...prev, ...curr }), {});
+      log('matches: %O', request.params.matches);
+
+      // pre-render hooks : wait for all data first
+      await Promise.all(
+        matches
+          .map((x) => [x.route.element?.type, x.route.element?.props])
+          .filter(([x, y]) => x && y)// could cause a problem ?
+          .map(async ([element, providedProps]) => {
+            let props;
+            if (element.defaultProps) {
+              props = { ...element.defaultProps };
+            }
+            props = { ...props, ...providedProps };
+            if (preRenderHook in element) {
+              const elementData = await element[preRenderHook]({ request, response, props });
+              data.set(element, elementData?.data);
+              log('element return: %o → %o', element.name, elementData);
+            }
+          }),
+      );
       log('data: %o', data);
-      log('response destroyed: %o', response.destroyed);
+      // if redirect quit.
       if (response.headersSent) {
         return;
       }
@@ -52,9 +70,11 @@ function renderedPageRouter() {
 
     const App = (
       <ServerContext.Provider value={context}>
-        <DynamicRouter>
-          <AppRoutes />
-        </DynamicRouter>
+        <DataContext.Provider value={data}>
+          <DynamicRouter>
+            <AppRoutes />
+          </DynamicRouter>
+        </DataContext.Provider>
       </ServerContext.Provider>
     );
     renderToNodeStream(App)
