@@ -10,6 +10,8 @@ import { ArrowClockwise } from 'react-bootstrap-icons';
 
 import { hashSearchParams } from '#client/react-router-hooks';
 import { ApiContext } from '#client/API/ApiProvider';
+import { preRenderHook } from '#server/preRenderHook';
+import { useData } from '#client/DataContext/DataProvider';
 import { Filter, IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';
 import { IssuePagination } from './IssuePagination';
@@ -21,8 +23,12 @@ import { UserContext } from '../login/UserProvider';
 export default function IssueList() {
   const {
     confirmDelete, fetchData,
-    issues, searchParams, maxIssues, newSearchParams, setSearchParams,
+    issues: clientIssues, searchParams, maxIssues, newSearchParams, setSearchParams,
   } = useContext(ApiContext);
+  // TODO clean API to make use of static data
+  const staticData = useData(IssueList);
+  const issues = staticData || clientIssues;
+
   const { signedIn } = useContext(UserContext);
   // needs to be automated by limiting search parameters use.
   // TODO search params Context.
@@ -99,3 +105,23 @@ export default function IssueList() {
     </Stack>
   );
 }
+
+const issuesLoader :preRenderHook = async () => ({
+  data: [{
+    _id: '05896dgfhls56s5',
+    status: 'New',
+    owner: 'Pieta',
+    created: new Date(),
+    title: 'Completion date should be optional !',
+  },
+  {
+    _id: '05896dgfhls56s5',
+    status: 'New',
+    owner: 'Pieta',
+    created: new Date(),
+    title: 'Completion date should be optional !',
+  },
+  ],
+});
+
+IssueList[preRenderHook] = issuesLoader;
