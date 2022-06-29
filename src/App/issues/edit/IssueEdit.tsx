@@ -9,10 +9,13 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import { Status } from '#server/issue';
+import { convertIssue, Status } from '#server/issue';
 import { UserContext } from '#client/App/login/UserProvider';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
 import { ApiContext } from '#client/API/ApiProvider';
+import { useData } from '#client/DataContext/DataProvider';
+import { preRenderHook } from '#server/preRenderHook';
+import { Db, ObjectId } from 'mongodb';
 import useErrorBanner from './ErrorBanner';
 import Input, { Maybe } from '../Input';
 import { Selection } from '../StatusFilter';
@@ -111,6 +114,7 @@ export default function IssueEdit() {
   const {
     ErrorBanner, pushError, clearErrors, pushSuccess,
   } = useErrorBanner();
+
   const initIssue = {
     _id: id,
     title: '',
@@ -120,14 +124,16 @@ export default function IssueEdit() {
     completionDate: null,
     created: null,
   };
+
   const {
     issue, setIssue, validity, getInvalidFields,
     getHandler: onChange,
   } = useFields(initIssue, true);
+
   const {
     _id: ID, title, status, owner, effort,
     completionDate, created,
-  } = issue;
+  } = useData(IssueEdit) || issue;
 
   const goto = useNavigate();
 
@@ -311,4 +317,42 @@ export default function IssueEdit() {
       </Card.Body>
     </Card>
   );
+}
+const fakeIssue = {
+  _id: '05896dgfhls56s5',
+  status: 'New',
+  owner: 'Pieta',
+  created: new Date(),
+  completionDate: new Date(),
+  effort: -666,
+  title: '[Fake] Completion date should be optional !',
+};
+if (!('document' in globalThis)) {
+  const issueLoader :preRenderHook = async ({ request }) => {
+    const { db }:{db:Db} = request;
+    const { ObjectId }:{ObjectId:ObjectId} = db;
+
+    try {
+      const id = new ObjectId(request.params?.matches?.id);
+      console.log(request.params);
+
+      const issue = await db.collection('issues').findOne({ _id: id });
+      // data conversion
+      let newIssue;
+      if (issue !== null) {
+        newIssue = convertIssue(issue);
+        newIssue._id = issue?._id.toString();
+        if (!newIssue.completionDate) {
+          // if missing then null to be `Nothing`
+          newIssue.completionDate = null;
+        }
+      }
+      // done
+      return { data: newIssue };
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  IssueEdit[preRenderHook] = issueLoader;
 }

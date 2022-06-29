@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react';
 import { ConditionalRender } from '#client/utils/ConditionalRender';
 import { Card } from 'react-bootstrap';
 
+import { clientID } from '#client/config';
 import GoogleButton from './GoogleButton';
-import { clientID } from './config';
 import { SimpleProfile } from './SimpleProfile';
 import { UserContext, UserDispatcher } from './UserProvider';
 
@@ -28,8 +28,6 @@ function signIn(user:Person) {
     throw response;
   });
 }
-
-
 
 export default function IssueLogin() {
   // const [user, setUser] = useState({ signedIn: false });

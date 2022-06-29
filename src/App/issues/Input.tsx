@@ -63,7 +63,7 @@ const DateValidition : Validation<Date> = (function () {
       return (date !== null && 'toISOString' in date) ? date.toISOString().split('T')[0] : '';
     },
     displayFormat(date) {
-      return (date != null) ? date.toDateString() : '';
+      return (date !== null) ? date.toDateString() : '';
     },
     unformat(str:string) {
     // bug : missing padding for year , month or day causes a day dec

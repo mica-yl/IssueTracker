@@ -14,6 +14,12 @@ function getApp(databaseClient:MongoClient) {
   const app = express();
   const dbConnection = Promise.resolve(databaseClient.db());
 
+  // pass database with request for `renderedPageRouter`.
+  app.use(async (req, res, next) => {
+    req.db = await dbConnection;
+    return next();
+  });
+
   // body parsing
   app.use(bodyParser.json());
 
