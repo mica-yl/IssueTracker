@@ -1,5 +1,5 @@
 /* eslint-disable import/no-import-module-exports */
-import SourceMapSupport from 'source-map-support';
+import 'source-map-support/register'; // load source map
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import http from 'http';
@@ -7,8 +7,6 @@ import { MongoClient } from 'mongodb';
 import debug from 'debug';
 import type { Express } from 'express';
 import getApp from './server';
-
-SourceMapSupport.install();
 
 const log = debug('app:server:index');
 
