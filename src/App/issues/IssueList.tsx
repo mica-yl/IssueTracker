@@ -10,7 +10,7 @@ import { ArrowClockwise } from 'react-bootstrap-icons';
 
 import { hashSearchParams } from '#client/react-router-hooks';
 import { ApiContext } from '#client/API/ApiProvider';
-import { preRenderHook } from '#server/preRenderHook';
+import { preRenderHook } from '#server/preRenderHook.static';
 import { useData } from '#client/DataContext/DataProvider';
 import { Filter, IssueFilterAccordion } from './IssueFilter';
 import IssueTable from './IssueTable';

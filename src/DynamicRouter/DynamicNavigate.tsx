@@ -1,8 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import React, { useContext } from 'react';
-import { ServerContext } from '#client/DynamicRouter/ServerContext';
+import React from 'react';
 import debug from 'debug';
-import { preRenderHook } from '#server/preRenderHook';
+import { preRenderHook } from '#server/preRenderHook.static';
 
 type DynamicNavigateProps = {
   to: string;
@@ -11,7 +10,7 @@ type DynamicNavigateProps = {
 
 const log = debug(`app:client:${DynamicNavigate.name}`);
 
-// TODO fix on server.
+// DONE fix on server.
 export function DynamicNavigate(props: DynamicNavigateProps) {
   const { to } = props;
   return <Navigate to={to} />;

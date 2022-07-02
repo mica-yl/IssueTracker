@@ -1,10 +1,13 @@
 const path = require('path');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const webpack = require('webpack');
+const log = require('debug')('webpack:config:client');
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 
-
-module.exports = {
+const nullModule = 'nullModule';
+const config = {
+  name: 'default',
   mode: 'development',
   entry: {
     app: [path.resolve(__dirname, './src/Client')],
@@ -49,9 +52,25 @@ module.exports = {
     historyApiFallback: true,
   },
   plugins: [],
+  externals: {},
   devtool: 'source-map',
   resolve: {
     extensions,
     plugins: [new TsconfigPathsPlugin({ extensions })],
+    fallback: {},
   },
 };
+
+// preRender `.static` files
+// replacing `.static` files with `nullModule`
+config.plugins.push(
+  new webpack.NormalModuleReplacementPlugin(
+    /\.static(.[jt]sx?)?$/g,
+    nullModule,
+  ));
+// ignore it in browser
+config.resolve.fallback[nullModule] = false;
+
+// TODO execlude preRenderHook file
+
+module.exports = config;

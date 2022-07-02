@@ -14,7 +14,7 @@ import debug from 'debug';
 import { DataContext } from '#client/DataContext/DataProvider';
 import { ObjectId } from 'mongodb';
 import { templateStream } from './template';
-import { preRenderHook } from './preRenderHook';
+import { preRenderHook } from './preRenderHook.static';
 
 const log = debug(`app:index:server:${renderedPageRouter.name}`);
 function renderedPageRouter() {
@@ -34,14 +34,15 @@ function renderedPageRouter() {
       request.db.ObjectId = ObjectId;
 
       // request params
-      const pathes = matches
-        .map((x) => x.route.path)
-        .filter((x) => x)
-        .map((pattern) => matchPath(pattern, request.url)?.params);
-      log('params: %O', pathes);
+      const patterns = matches
+        .map((x) => x.params)
+        .filter((x) => x);
 
-      request.params.matches = pathes.reduce((prev, curr) => ({ ...prev, ...curr }), {});
-      log('matches: %O', request.params.matches);
+      request.params = {
+        ...request.params,
+        ...patterns.reduce((prev, curr) => ({ ...prev, ...curr })),
+      };
+      log('params: %O', request.params);
 
       // pre-render hooks : wait for all data first
       await Promise.all(
