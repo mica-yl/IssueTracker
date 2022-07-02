@@ -1,11 +1,22 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const webpack = require('webpack');
 const { promisify } = require('util');
+const log = require('debug')('app:start-hook');// TODO rename.
 
-const solidFs = require('fs');
-const { fs: softFs } = require('memfs');
 const { patchRequire } = require('fs-monkey');
+const solidFs = require('fs');
+const { createFsFromVolume, Volume } = require('memfs');
 const { ufs: hybridFs } = require('unionfs');
+
+const tempVol = new Volume();
+const tempFs = createFsFromVolume(tempVol);
+
+const softVol = new Volume();
+const softFs = createFsFromVolume(softVol);
+
+hybridFs
+  .use(solidFs)
+  .use(softFs);
 
 const webpackServerConfig = require('../webpack.server-config');
 // const webpackClientConfig = require('../webpack.config');
@@ -16,7 +27,8 @@ const argWatch = (() => {
 })();
 
 const serverCompiler = webpack(webpackServerConfig);
-serverCompiler.outputFileSystem = softFs;
+// serverCompiler.outputFileSystem = softFs;
+serverCompiler.outputFileSystem = tempFs;
 
 // const clientCompiler = webpack(webpackClientConfig);
 // clientCompiler.outputFileSystem = softFs;
@@ -34,29 +46,44 @@ const ls = (path, fs = softFs) => {
 const print = (stats) =>
   (stats ? console.log(stats.toString({ colors: true })) : console.log(stats));
 
+/**
+ * @typedef {ReturnType<once>} onceCallBack 
+ * @param {Function} f 
+ * @returns 
+ */
 function once(f) {
   let lock = true;
-  return () => {
+  const fn = () => {
     if (lock) {
       lock = false;
       f();
     }
   };
+  fn.restart = () => { lock = true; };
+  return fn;
 }
 function runApp() {
   console.log('=====App====');
   // eslint-disable-next-line import/no-unresolved,global-require
   require('../dist/server.bundle.js');// in softFs
 }
-
+/**
+ * 
+ * @param {webpack.Stats} stats
+ * @param {Function|onceCallBack} requireApp
+ */
 function dispatchApp(stats, requireApp) {
+  log('build has errors ? %o', stats.hasErrors());
   if (!stats.hasErrors()) {
-    hybridFs
-      .use(solidFs)
-      .use(softFs);
+    log('dispaching app and requiring.');
+    softVol.fromJSON(tempVol.toJSON());
+    log('new volume files: %O', Object.keys(tempVol.toJSON()));
     patchRequire(hybridFs);
     requireApp();
   }
+  // else {
+  //   requireApp.restart();
+  // }
 }
 
 function run(compiler, requireApp) {
@@ -69,7 +96,11 @@ function run(compiler, requireApp) {
       (async () => dispatchApp(stats, requireApp))();
     }).catch(console.error);
 }
-
+/**
+ * 
+ * @param { webpack.Compiler & webpack.MultiCompiler} compiler
+ * @param {onceCallBack} requireApp
+ */
 function watch(compiler, requireApp) {
   const requireAppOnce = once(requireApp);
   compiler.watch(
