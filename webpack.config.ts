@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
-const path = require('path');
-const webpack = require('webpack');
+import * as path from 'path';
+import * as webpack from 'webpack';
 // plugins
 const nodeExternals = require('webpack-node-externals');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
@@ -11,30 +11,34 @@ const log = require('debug')('app:webpack');
 const logClient = require('debug')('app:webpack:client');
 const logServer = require('debug')('app:webpack:server');
 
+type Build = {
+  type: 'server' | 'client',
+};
 
-// TODO move to webpack.config.js
+type wepbackEnv = {
+  production: boolean,
+  /**
+   * use to build in memory.
+   */
+  inMem: boolean,
+  type: Build['type'],
+};
 
-/**
- * 
- * @param {import('./webpack.config').wepbackEnv} env
- * @param {Record<string,any>} argv
- * @returns {webpack.Configuration}webpackServerConfig
- */
-function webpackConfig(env, argv) {
+
+function webpackConfig(env: wepbackEnv, argv: Record<string, any>): webpack.Configuration {
   const production = env.production || argv.mode === 'production';
   const development = !production;
-  /** @type import('./webpack.config').Build */
-  const build = {
+  const build: Build = {
     type: env.type || 'client',
   };
-  let config;
+  let config: webpack.Configuration = {};
   const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
   log('build: %o', build);
   log('production: %o', production);
   // server
   if (build.type === 'server') {
     /**  @type {webpack.Configuration}  */
-    const serverConfig = {
+    const serverConfig: webpack.Configuration = {
       name: 'server',
       mode: production ? 'production' : 'development',
       target: 'node',
@@ -88,8 +92,7 @@ function webpackConfig(env, argv) {
     config = serverConfig;
   } else if (build.type === 'client') {// client
     const nullModule = 'nullModule';
-    /**  @type {webpack.Configuration}  */
-    const clientConfig = {
+    const clientConfig: webpack.Configuration = {
       name: 'client',
       mode: 'development',
       entry: {
@@ -161,4 +164,4 @@ function webpackConfig(env, argv) {
   return config;
 }
 
-module.exports = webpackConfig;
+export default webpackConfig;
