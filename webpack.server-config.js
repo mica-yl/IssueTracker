@@ -4,6 +4,7 @@ const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const RunInMemoryPlugin = require('RunInMemoryPlugin');
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 
@@ -35,7 +36,10 @@ module.exports = {
       },
     ],
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new RunInMemoryPlugin({ requireFile: path.join(__dirname, './dist/server.bundle.js') }),
+  ],
   devtool: 'source-map',
   resolve: {
     extensions,
