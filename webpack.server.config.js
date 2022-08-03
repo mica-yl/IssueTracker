@@ -7,7 +7,8 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const RunInMemoryPlugin = require('RunInMemoryPlugin');
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
-
+// TODO optional run in memory 
+// TODO - to .
 module.exports = {
   mode: 'development',
   target: 'node',
